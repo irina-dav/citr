@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "Категории информационных ресурсов";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/lib/jstree/themes/proton/style.min.css" />
+<link rel="stylesheet" href="~/lib/jquery-confirm/jquery-confirm.min.css" />
+<script type="text/javascript" src="~/lib/jstree/jstree.min.js"></script>
+<script type="text/javascript" src="~/lib//jquery-confirm/jquery-confirm.min.js"></script>
+
+<div class="container-fluid m-2">
+    <h2>Категории информационных ресурсов</h2>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@Html.Raw(@TempData["Error"])</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">@Html.Raw(@TempData["Success"])</div>
+    }
+    <form class="m-1 p-1" id="mainForm" method="post" asp-action="DeleteCategory">
+        <button id="addNode" data-toggle="modal" class='btn btn-link btn-light btn-sm rounded-0'>Добавить категорию <span class="fa fa-plus"></span></button>
+        <button id="editNode" data-toggle="modal" class='btn btn-link btn-light btn-sm rounded-0'>Редактировать категорию <span class="fa fa-edit"></span></button>
+        <button type="submit" id="deleteNode" data-toggle="modal" class='btn btn-link btn-light btn-sm rounded-0'>Удалить категорию <span class="fa fa-trash-o"></span></button>
+        <input hidden id="categoryId" name="categoryId" />
+    </form>
+    <div class="m-2 p-2">
+        <div id="jstree-tree"></div>
+    </div>
+
+
+    <div class="modal fade in" id="modalAddNode" role="dialog" aria-hidden="true">
+        <partial name="AddCategory.cshtml" />
+    </div>
+    <div class="modal fade in" id="modalEditNode" role="dialog" aria-hidden="true">
+        <partial name="EditCategory.cshtml" />
+    </div>
+</div>
+           
+<script type="text/javascript">
+    
+    var jsonData = @Html.Raw(@ViewBag.Json);
+    var selectedCategoryName = "";
+    $('#jstree-tree')
+        .on('changed.jstree', function (e, data) {
+            var objNode = data.instance.get_node(data.selected);
+            $('#categoryId').val(Number(objNode.id));
+            $('#currentCategoryName').val(objNode.text);
+            $('#currentCategoryId').val(Number(objNode.id));
+            $('#parentCategoryId').val(Number(objNode.id));
+            $('#parentCategoryName').val(objNode.text);
+            selectedCategoryName = objNode.text;
+        })
+        .jstree({
+            core: {
+                themes: {
+                    name: 'proton',
+                    responsive: true,
+                    icons: false,
+                },
+                data: jsonData,
+                multiple: false,
+                check_callback: true,
+            },
+            checkbox: {
+                keep_selected_style: false,
+                three_state: false
+            },
+            plugins: ["checkbox"],            
+        }).bind("ready.jstree", function (event, data) {
+            $(this).jstree("open_all");
+        });
+
+    $('#addNode').click(function (e) {
+        e.preventDefault();
+        if ($('#parentCategoryId').val() == "") {
+            $.alert({
+                boxWidth: '500px',
+                useBootstrap: false,
+                title: 'Выберите родительскую категорию',
+                content: "Для добавления новой категории необходимо выбрать родительскую в иерархии.",
+                theme: 'bootstrap',
+            });           
+        }
+        else {
+            $("#modalAddNode").modal("show");
+        }
+    });
+
+    $('#editNode').click(function (e) {
+        e.preventDefault();       
+        if ($('#currentCategoryId').val() == "") {
+            $.alert({
+                boxWidth: '500px',
+                useBootstrap: false,
+                title: 'Категория не выбрана',
+                content: "Необходимо выбрать категорию для редактирования.",
+                theme: 'bootstrap',
+            });
+        }
+        else {
+            $("#modalEditNode").modal("show");
+        }
+    });
+
+    $('#deleteNode').click(function (e) {
+     
+        e.preventDefault();  
+        var tree = $('#jstree-tree').jstree();
+        var selectedNodeId = tree.get_selected();        
+        var node = tree.get_node(selectedNodeId);
+        if (tree.is_parent(node)) {
+            $.alert({
+                boxWidth: '500px',
+                useBootstrap: false,
+                title: 'Удаление невозможно',
+                content: "Нельзя удалить категорию, которая имеет дочерние категории.",
+            });
+            return;
+        }
+       
+        if (selectedCategoryName == "") {
+            $.alert({
+                boxWidth: '500px',
+                useBootstrap: false,
+                title: 'Выберите категорию',
+                content: "Выберите категорию, которую необходимо удалить.<br>Удалить возможно только категорию, на которую не ссылок.",
+            });
+        }
+        else {
+            $.confirm({
+                title: 'Удаление категории',
+                content: 'Вы действительно хотите удалить категорию <b>' + selectedCategoryName + '</b>?<br>Удалить возможно только категорию, на которую не ссылок.',
+                boxWidth: '500px',
+                useBootstrap: false,
+                buttons: {
+                    Удалить: function () {
+                        $('#mainForm').submit();
+                    },
+                    Отмена: function () {
+
+                    },
+                }
+            });
+        }
+    });
+</script>

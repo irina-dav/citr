@@ -1,0 +1,212 @@
+﻿@model Request
+@{
+    ViewBag.Title = "Запрос на доступ к информационным ресурсам";
+    Layout = "_Layout";
+}
+@inject IEmployeeRepository EmployeeRepository
+@{
+    var empls = EmployeeRepository.Employees;
+}
+@inject IResourceRepository ResourceRepository
+@{
+    var resources = ResourceRepository.Resources;
+}
+@inject ILdapService LdapService
+<div class="card text-left w-75 mx-auto">
+    <form method="post" novalidate>
+        <div class="card-header">
+            <h4>Заявка на доступ к информационному ресурсу</h4>
+            <div class="form-group m-0 p-0">
+                <label class="font-weight-bold">Номер заявки:</label>
+                @{var number = (Model.RequestID == 0) ? "Будет выдан после сохранения" : Model.RequestID.ToString();}
+                <label class="col-6">@number</label>
+                <input hidden asp-for="RequestID" class="form-control" />
+            </div>
+            <div class="form-group m-0 p-0">
+                <label class="font-weight-bold">Статус заявки:</label>
+                <label class="col-6">@Model.State.GetDisplayName()</label>
+                <input hidden asp-for="AuthorID" class="form-control" />
+                <input hidden asp-for="State" class="form-control" />
+            </div>
+            <div class="form-group m-0 p-0">
+                <label class="font-weight-bold">Автор заявки:</label>
+                <label class="col-6">@Model.Author.FullName</label>
+            </div>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            @if (Model.State == RequestState.Approving)
+            {
+                <div class="alert alert-warning" role="alert">
+                    Напротив каждого ресурса поставьте отметку о согласовании, после чего нажмите кнопку <strong>Завершить</strong> в нижней части формы.
+                </div>
+                <textarea hidden name="commentApproving" class="form-control h-auto" placeholder="Комментарий, замечание (не обязательно) ... "></textarea>
+            }
+            <div class="form-group form-group-sm">
+                <label class="font-weight-bold">Ресурсы для предоставления доступа</label>
+                <div><span asp-validation-for="ResourceAccesses" class="text-danger"></span></div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button type="button" class="btn btn-light btn-sm" id="addResource"
+                                data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Выберите информационный ресурс из списка">
+                            Добавить
+                        </button>
+                    </div>
+                    <select id="selectResource" class="form-control col-8 js-example-basic-single" asp-items="@(new SelectList(resources, "ResourceID", "Name"))">
+                        <option value="" disabled selected>Выберите ресурс из списка и нажмите кнопку Добавить</option>
+                    </select>
+                </div>
+
+                <table id="tblResources" class="table table-sm small table-success mt-2" cellpadding="0" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%; font-weight: normal">Ресурс</th>
+                            <th style="width: 20%; font-weight: normal">Категория ресурса</th>
+                            <th style="width: 25%; font-weight: normal">Владелец ресурса</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ResourceAccesses != null)
+                        {                            
+                            for (int i = 0; i < Model.ResourceAccesses.Count; i++)
+                            {
+                                var vd = new ViewDataDictionary(ViewData);
+                                vd.TemplateInfo.HtmlFieldPrefix = string.Format("ResourceAccesses[{0}]", i);
+                                <partial name="AddResource" model=@Model.ResourceAccesses[i] view-data=vd />
+                            }
+                    }
+                    </tbody>
+                </table>
+
+            </div>
+            <br />
+            <div class="form-group form-group-sm">
+                <label class="font-weight-bold">Сотрудники и уровень доступа</label>
+                <div><span asp-validation-for="EmployeeAccesses" class="text-danger"></span></div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button type="button" class="btn btn-light btn-sm" id="addEmployee"
+                                data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Выберите сотрудника и уровень доступа">
+                            Добавить
+                        </button>
+                    </div>
+                    <select id="selectEmployee" class="col-5 form-control form-control-sm js-example-basic-single select2-single" asp-items="@(new SelectList(empls, "EmployeeID", "FullName"))">
+                        <option value="" disabled selected>Выберите сотрудника</option>
+                    </select>
+                    <select id="selectAccessLevel" class="col-3 form-control form-control-sm js-example-basic-single select2-single" asp-items="@new SelectList(Enum.GetNames(typeof(AccessLevel)))">
+                        <option value="" disabled selected>Выберите уровень доступа</option>
+                    </select>
+                </div>
+
+                <table id="tblEmployees" class="table table-sm small table-info mt-2" cellpadding="0" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%; font-weight: normal">Сотрудник</th>
+                            <th style="width: 20%; font-weight: normal">Уровень доступа</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.EmployeeAccesses != null)
+                        {
+                            for (int i = 0; i < Model.EmployeeAccesses.Count; i++)
+                            {
+                                var vd = new ViewDataDictionary(ViewData);
+                                vd.TemplateInfo.HtmlFieldPrefix = string.Format("EmployeeAccesses[{0}]", i);
+                                <partial name="AddEmployeeAccess" model=@Model.EmployeeAccesses[i] view-data=vd />
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group form-group-sm">
+                <label asp-for="Comment" class="font-weight-bold"></label>
+                <div><span asp-validation-for="Comment" class="text-danger"></span></div>
+                <textarea asp-for="Comment" class="form-control"></textarea>
+            </div>
+            <div class="text-center">                
+                @if (Model.State == RequestState.New)
+                {
+                    <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary " />
+                    <input type="submit" name="response" value="Отправить" formaction=@Url.Action("Send") formmethod="post" class="btn btn-outline-success" />
+                }
+                @if (Model.State == RequestState.Approving)
+                {
+                    <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-primary" />
+                }
+                <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+
+        </div>
+        <div class="card-footer text-muted">
+            <partial name="History" model="@Model.History" />
+        </div>
+    </form>
+    
+</div>
+<script type="text/javascript">
+
+    $('#addResource').click(function () {
+        var nextIndex = $("#tblResources tbody tr").length;
+        var resId = $("#selectResource").find("option:selected").val();
+        if (resId.length == 0) {
+            $('#addResource').popover('show');
+        } else {
+            $.ajax({
+                url: '@Url.Action("AddResource", "Request")',
+                type: 'POST',
+                data: { index: nextIndex, resourceId: resId },
+                success: function (results) {
+                    $("#tblResources tbody").append(results);
+                }
+            });
+        }
+
+    });
+
+    $('#addResource').mouseleave(function () {
+        $(this).popover('hide');
+    });
+
+    $('#addEmployee').click(function () {
+        var nextIndex = $("#tblEmployees tbody tr").length;
+        var emplId = $("#selectEmployee").find("option:selected").val();
+        var accessLevelVal = $("#selectAccessLevel").find("option:selected").val();
+        if (emplId.length == 0 || accessLevelVal.length == 0) {
+            $('#addEmployee').popover('show');
+        } else {
+            $.ajax({
+                url: '@Url.Action("AddEmployeeAccess", "Request")',
+                type: 'POST',
+                data: { index: nextIndex, employeeId: emplId, accessLevel: accessLevelVal },
+                success: function (results) {
+                    $("#tblEmployees tbody").append(results);
+                }
+            });
+        }
+    });
+
+    $('#addEmployee').mouseleave(function () {
+        $(this).popover('hide');
+    });
+
+    $("#tblEmployees").on("click", ".delete-employee", function () {
+        $(this).closest('tr').hide();
+        $(this).prev('input').val('true');
+        });
+
+    $("#tblResources").on("click", ".delete-resource", function () {
+        $(this).closest('tr').hide();
+        $(this).prev('input').val('true');
+    });
+
+    $(document).ready(function () {
+        var state = $("#State").val();
+        if (state == 'Approving') {
+            $(':input[type=submit][value!="Завершить"]').attr('hidden', 'hidden');
+            $('.input-group').attr('hidden', 'hidden');
+        }
+    });
+    $.fn.select2.defaults.set("theme", "bootstrap");
+</script>

@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Resource>
+
+@{
+    ViewBag.Title = "Список ресурсов";
+    Layout = "_LayoutList";
+}
+<div class="col-md-10 col-md-offset-1">
+        <div class="panel-body">
+            <table id="list" class="table table-bordered table-sm small">
+                <thead>
+                    <tr>
+                        <th style="width: 20%">Название</th>
+                        <th style="width: 10%">Владелец</th>
+                        <th style="width: 20%">Описание</th>
+                        <th style="width: 20%">Категория</th>
+                        <th style="width: 15%">Дата изменения</th>
+                        <th style="width: 15%" class="text-center">Действия</th>
+                    </tr>
+                    </thead>
+                    @foreach (Resource res in Model)
+                    {
+                <tr>
+                    <td>@res.Name</td>
+                    <td>@res.OwnerEmployee?.Account</td>
+                    <td>@res.Description</td>
+                    <td>@res.Category?.Name</td>
+                    <td>@res.ChangeDate</td>
+                    <td class="text-center">
+                        <form asp-action="Delete" method="post">
+                            <a asp-action="Edit" class="btn btn-sm btn-outline-warning" asp-route-resourceId="@res.ResourceID">Открыть</a>
+                            <input type="hidden" name="ResourceID" value="@res.ResourceID" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                    }
+            </table>
+        </div>
+
+</div>

@@ -1,0 +1,17 @@
+﻿@model EmployeeAccess
+<tr>
+    <td class="align-middle">@Model.Employee.FullName</td>
+    <td class="align-middle">@Model.AccessLevel</td>
+    <td>
+    @if (Model.CanDelete)
+    {
+        @Html.HiddenFor(m => Model.IsDeleted)
+        <a class="btn btn-light delete-employee btn-sm">Удалить</a>            
+    }      
+    </td>                 
+    @Html.HiddenFor(m => m.ID)
+    @Html.HiddenFor(m => m.EmployeeID)
+    @Html.HiddenFor(m => m.AccessLevel)
+</tr>
+
+

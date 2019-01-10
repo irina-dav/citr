@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Request>
+
+@{
+    Layout = "_LayoutList";
+}
+
+<div class="col-md-10 col-md-offset-1">
+    <h2>
+        @ViewBag.Title
+        <a asp-action="Create" class="btn btn-link btn-light btn-sm rounded-0">Создать новую заявку</a>
+    </h2>
+    <div class="panel-body">
+        <table id="list" class="table table-bordered table-striped table-sm small table-hover ">
+            <thead>
+                <tr>
+                    <th style="width: 5%">Номер</th>
+                    <th style="width: 10%">Дата создания</th>
+                    <th style="width: 10%">Дата изменения</th>
+                    <th style="width: 13%">Состояние</th>
+                    <th style="width: 20%">Ресурс</th>
+                    <th style="width: 20%">Доступ для сотрудников</th>
+                    <th style="width: 12%">Автор</th>
+                    <th style="width: 10%" class="text-center">Действия</th>
+                </tr>
+            </thead>
+            @foreach (Request req in Model)
+            {
+                <tr>
+                    <td>@req.RequestID</td>
+                    <td>@req.CreateDate</td>
+                    <td>@req.ChangeDate</td>
+                    <td>@req.State.GetDisplayName()</td>
+                    <td>@string.Join(", ", req.ResourceAccesses.Select(r => r.Resource.Name))</td>
+                    <td>@string.Join(", ", req.EmployeeAccesses.Select(e => e.Employee.FullName))</td>
+                    <td>@req.Author?.FullName</td>
+                    <td class="text-center">
+                        <a  asp-controller="Request" asp-action="Edit" class="btn btn-sm btn-outline-info" asp-route-requestId="@req.RequestID">Открыть</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>

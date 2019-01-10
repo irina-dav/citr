@@ -1,0 +1,48 @@
+﻿<link rel="stylesheet" href="~/lib/jstree/themes/proton/style.min.css" />
+<script type="text/javascript" src="~/lib/jstree/jstree.min.js"></script>
+
+<div class="modal fade" id="categoryModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Категория информационного ресурса</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div id="jstree-tree"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var jsonData = @Html.Raw(@ViewBag.Json);
+    $('#jstree-tree')
+        .on('changed.jstree', function (e, data) {
+            var objNode = data.instance.get_node(data.selected);
+            $('#CategoryID').val(Number(objNode.id));
+            $('#ResourceCategoryName').text(objNode.text);
+        })
+        .jstree({
+            core: {
+                themes: {
+                name: 'proton',
+                responsive: true
+            },
+                data: jsonData,
+                multiple: false
+            },
+                checkbox: {
+                    keep_selected_style: false,
+                    three_state: false
+            },
+            plugins: ["checkbox"]
+        });
+</script>

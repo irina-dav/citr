@@ -1,0 +1,33 @@
+﻿
+<div class="modal-dialog modal-lg ">
+    <div class="modal-content">
+        <div class="modal-header">          
+            <h4 class="modal-title">Редактирование категории</h4>
+        </div>
+        <div class="modal-body">
+            <form method="post" asp-action="EditCategory">
+                <div class="form-group row">
+                    <label class="col-5 col-form-label">Текущее название</label>
+                    <div class="col-7">
+                        <input readonly class="form-control" id="currentCategoryName" name="currentCategoryName" />
+                    </div>
+                </div>
+                <input hidden id="currentCategoryId" name="currentCategoryId" />
+                <div class="form-group row">
+                    <label class="col-5 col-form-label">Новое название</label>
+                    <div class="col-7">
+                        <span class="text-danger field-validation-error" data-valmsg-for="newCategoryName" data-valmsg-replace="true"></span>
+                        <input data-val="true" data-val-required="Укажите новое название для категории"
+                               class="form-control" id="newCategoryName" name="newCategoryName" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="saveCategory" value="Сохранить" class="btn btn-primary" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Отмена</button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+</div>

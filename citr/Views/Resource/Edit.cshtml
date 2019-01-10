@@ -1,0 +1,59 @@
+﻿@model Resource
+@addTagHelper RequestsAccess.Infrastructure.TagHelpers.SelectEmployeeOptionTagHelper, RequestsAccess
+@{
+    ViewBag.Title = "Редактирование ресурса";
+    Layout = "_Layout";
+}
+@inject IEmployeeRepository EmployeeRepository
+@{
+    var empls = EmployeeRepository.Employees;
+}
+
+<div class="card text-left w-75 mx-auto">
+    <div class="card-header">
+        <h4>Информационный ресурс</h4>
+    </div>
+    <div class="card-body">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <form asp-action="Edit" method="post" novalidate>
+            <input type="hidden" asp-for="ResourceID" />
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <div><span asp-validation-for="Name" class="text-danger"></span></div>
+                <input asp-for="Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                <textarea asp-for="Description" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerEmployeeID"></label>
+                <div><span asp-validation-for="OwnerEmployeeID" class="text-danger"></span></div>
+                <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single" asp-items="@(new SelectList(empls, "EmployeeID", "FullName"))">
+                    <option disabled selected value="">Выберите владельца</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryID"></label>
+                <div><span asp-validation-for="CategoryID" class="text-danger"></span></div>
+                <div class="input-group">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#categoryModal">Выбрать</button>
+                    </div>
+                    <label class="form-control" id="ResourceCategoryName">@Model.Category?.Name</label>
+                    <input asp-for="CategoryID" class="form-control" />
+                </div>
+                <partial name="CategoryTree.cshtml" />
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary" type="submit">Сохранить</button>
+                <a asp-action="List" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer text-muted">
+        ...
+    </div>
+    <partial name="History"model="@Model.History" />
+</div>

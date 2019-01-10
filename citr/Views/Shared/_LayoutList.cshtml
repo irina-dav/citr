@@ -1,0 +1,36 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@section head {
+    <link href="~/lib/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        var listSettings = {
+            "destroy": true,
+            "order": [[0, 'desc']],
+            "lengthMenu": [[100, 250, 500, -1], [100, 250, 500, "Все"]],
+            "language": {
+                "lengthMenu": "Показывать _MENU_ записей на странице",
+                "zeroRecords": "Ничего не найдено",
+                "info": "Страница _PAGE_ из _PAGES_",
+                "infoEmpty": "Нет доступных записей",
+                "search": "Поиск:",
+                "infoFiltered": "(Показано _TOTAL_ записей из _MAX_)",
+                "paginate": {
+                    "first": "Первая",
+                    "last": "Последняя",
+                    "next": "Далее",
+                    "previous": "Назад"
+                },
+            }
+        };
+        $(document).ready(function () {            
+            $('#list').DataTable(listSettings);
+        });
+    </script>
+}
+
+@RenderBody()

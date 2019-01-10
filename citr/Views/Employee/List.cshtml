@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Employee>
+
+@{
+    ViewBag.Title = "Сотрудники";
+    Layout = "_LayoutList";
+}
+<div class="col-md-10 col-md-offset-1">
+        <div class="panel-body">
+            <table id="list" class="table table-bordered table-striped table-sm small">
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Account</th>
+                        <th style="width: 25%">Имя</th>
+                        <th style="width: 25%">Должность</th>
+                        <th style="width: 20%">Email</th>
+                        <th style="width: 15%" class="text-center">Действия</th>
+                    </tr>
+                </thead>
+                @foreach (Employee empl in Model)
+                {
+                <tr>
+                    <td>@empl?.Account</td>
+                    <td>@empl?.FullName</td>
+                    <td>@empl?.Position</td>
+                    <td>@empl?.Email</td>
+                    <td class="text-center">
+                        <form asp-action="Delete" method="post">
+                            <a asp-action="Edit" class="btn btn-sm btn-outline-warning" asp-route-employeeId="@empl.EmployeeID">Открыть</a>
+                            <input type="hidden" name="EmployeeID" value="@empl.EmployeeID" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+            </table>
+        </div>
+</div>
+<script>
+$(document).ready( function() {
+    var oTable = $('#list').DataTable();
+    listSettings.order = [[1, 'asc']];
+    oTable.destroy();
+    $("#list").DataTable(listSettings);
+});
+</script>

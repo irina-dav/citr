@@ -1,0 +1,30 @@
+﻿<div class="modal-dialog modal-lg ">
+    <div class="modal-content">
+        <div class="modal-header">          
+            <h4 class="modal-title">Новая категория</h4>
+        </div>
+        <div class="modal-body">
+            <form method="post" asp-action="AddCategory">
+                <div class="form-group row">
+                    <label class="col-5 col-form-label">Родительская категория</label>
+                    <div class="col-7">
+                        <input readonly class="form-control" id="parentCategoryName" name="parentCategoryName" />
+                    </div>
+                </div>
+                <input hidden id="parentCategoryId" name="parentCategoryId" />
+                <div class="form-group row">
+                    <label class="col-5 col-form-label">Новая категория</label>
+                    <div class="col-7">
+                        <span class="text-danger field-validation-error" data-valmsg-for="categoryName" data-valmsg-replace="true"></span>
+                        <input data-val="true" data-val-required="Укажите название новой категории"
+                               class="form-control" id="categoryName" name="categoryName" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="addCategory" value="Добавить" class="btn btn-primary" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

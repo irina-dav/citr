@@ -1,0 +1,57 @@
+﻿@inject ILdapService LdapService
+<div class="navbar navbar-expand navbar-light" style="background-color: #FFC573;" role="navigation">
+    <a class="navbar-brand" href="/"><span class="fa fa-home"></span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#" aria-controls="navbarContent" aria-expanded="false" aria-label="Разделы">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav mr-auto">           
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="MenuRequests" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Заявки на доступ
+                </a>
+                <div class="dropdown-menu" aria-labelledby="MenuRequests">
+                    <a class="dropdown-item small" asp-action="Create" asp-controller="Request">Создать заявку</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item small" asp-action="ListMyRequests" asp-controller="Request">Заявки от меня</a>
+                    <a class="dropdown-item small" asp-action="ListToApprove" asp-controller="Request">Заявки мне на согласование</a>
+                    <a class="dropdown-item small" asp-action="ListAll" asp-controller="Request">Все заявки</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="MenuResources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Информационные ресурсы
+                </a>
+                <div class="dropdown-menu small" aria-labelledby="MenuResources">
+                    <a class="dropdown-item small" asp-action="Create" asp-controller="Resource">Добавить новый ресурс</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item small" asp-action="List" asp-controller="Resource">Список ресурсов</a>
+                    <a class="dropdown-item small" asp-action="Index" asp-controller="ResourceCategory">Категории информационных ресурсов</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="MenuResources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Сотрудники
+                </a>
+                <div class="dropdown-menu" aria-labelledby="MenuResources">
+                    <a class="dropdown-item small" asp-action="Create" asp-controller="Employee">Добавить сотрудника</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item small" asp-action="PopulateEmployees" asp-controller="Admin">Загрузить из Active Directory</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item small" asp-action="List" asp-controller="Employee">Список сотрудников</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    @if (User?.Identity?.IsAuthenticated ?? false)
+    {
+        <span class="small text-right mr-2">@LdapService.GetUserDisplayInfo()<br />@User.Identity.Name</span>
+        <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-secondary">Выход</a>
+    }
+    else
+    {
+        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-success">Вход</a>
+    }
+
+</div>
