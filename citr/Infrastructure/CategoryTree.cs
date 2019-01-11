@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RequestsAccess.Models;
+using citr.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace RequestsAccess.Infrastructure
+namespace citr.Infrastructure
 {
     public class CategoryTree
     {

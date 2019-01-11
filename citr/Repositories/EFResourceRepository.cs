@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class EFResourceRepository : IResourceRepository
     {
@@ -16,7 +16,7 @@ namespace RequestsAccess.Models
         }
 
         public IEnumerable<Resource> Resources 
-            => context.Resources.Include(r => r.OwnerEmployee).Include(r => r.Category).Include(r => r.History);
+            => context.Resources.Include(r => r.OwnerEmployee).Include(r => r.Category).Include(r => r.History).Include(r => r.Roles);
      
         public Resource DeleteResource(int resourceId)
         {

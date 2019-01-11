@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace RequestsAccess.Infrastructure
+namespace citr.Infrastructure
 {
     public static class ControllerExtensions
     {

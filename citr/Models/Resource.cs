@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using RequestsAccess.Services;
+using citr.Services;
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class Resource: IHistoryable
     {
@@ -41,5 +41,10 @@ namespace RequestsAccess.Models
 
         public int ObjectID { get => ResourceID; }
 
+        public virtual List<AccessRole> Roles { get; set; }
+
     }
+
+
+
 }

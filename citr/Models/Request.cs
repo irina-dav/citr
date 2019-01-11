@@ -6,11 +6,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RequestsAccess.Infrastructure;
-using RequestsAccess.Services;
+using citr.Infrastructure;
+using citr.Services;
 
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class Request : IHistoryable
     {
@@ -18,14 +18,17 @@ namespace RequestsAccess.Models
         [Display(Name = "Номер заявки")]
         public int RequestID { get; set; }
 
-        [ListReqiredAttribute(ErrorMessageResourceName = "RequesResourcesRequired", ErrorMessageResourceType = typeof(ValidationRes))]
-        public virtual List<EmployeeAccess> EmployeeAccesses { get; set; }
+        [ListReqiredAttribute(ErrorMessage = "Заполните детали запроса")]
+        public virtual List<RequestDetail> Details { get; set; }
+
+        //[ListReqiredAttribute(ErrorMessageResourceName = "RequesResourcesRequired", ErrorMessageResourceType = typeof(ValidationRes))]
+        //public virtual List<EmployeeAccess> EmployeeAccesses { get; set; }
 
        // [NotMapped]
        // public Guid[] ResourceIDs { get; set; }
 
-        [ListReqiredAttribute(ErrorMessageResourceName = "RequestEmployeesRequired", ErrorMessageResourceType = typeof(ValidationRes))]
-        public virtual List<ResourceAccess> ResourceAccesses { get; set; }
+        //[ListReqiredAttribute(ErrorMessageResourceName = "RequestEmployeesRequired", ErrorMessageResourceType = typeof(ValidationRes))]
+       // public virtual List<ResourceAccess> ResourceAccesses { get; set; }
 
         [Display(Name = "Комментарий")]
         public string Comment { get; set; }

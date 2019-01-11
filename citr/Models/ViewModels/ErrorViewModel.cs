@@ -1,6 +1,6 @@
 using System;
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class ErrorViewModel
     {

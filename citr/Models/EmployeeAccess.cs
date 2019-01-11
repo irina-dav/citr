@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class EmployeeAccess : IViewTableRow
     {

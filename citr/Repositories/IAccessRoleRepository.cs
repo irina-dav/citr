@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace citr.Models
 {
-    public interface IRequestRepository
+    public interface IAccessRoleRepository
     {
-        IEnumerable<Request> Requests { get; }
+        IEnumerable<AccessRole> Roles { get; }
 
-        void SaveRequest(Request request);
+        void SaveRole(AccessRole role);
 
         //void AddRequestEvent(Request request, string textEvent);
     }

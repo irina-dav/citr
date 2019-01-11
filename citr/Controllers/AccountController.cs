@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RequestsAccess.Services;
-using RequestsAccess.Models.ViewModels;
-using RequestsAccess.Models;
+using citr.Services;
+using citr.Models.ViewModels;
+using citr.Models;
 
-namespace RequestsAccess.Controllers
+namespace citr.Controllers
 {
     public class AccountController : Controller
     {

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using RequestsAccess.Infrastructure;
-using RequestsAccess.Models;
-using RequestsAccess.Models.ViewModels;
-using RequestsAccess.Services;
+using citr.Infrastructure;
+using citr.Models;
+using citr.Models.ViewModels;
+using citr.Services;
 using Microsoft.AspNetCore.Http.Extensions;
 
-namespace RequestsAccess.Controllers
+namespace citr.Controllers
 {
     [Authorize]
     public class RequestController : Controller
@@ -20,6 +20,8 @@ namespace RequestsAccess.Controllers
         private IRequestRepository repository;
         private IEmployeeRepository employeeesRepository;
         private IResourceRepository resourcesRepository;
+        private IAccessRoleRepository roleRepository;
+
         private IMailService mailService;
         private ILdapService ldapService;
         private readonly HistoryService historyService;
@@ -29,6 +31,7 @@ namespace RequestsAccess.Controllers
             IEmployeeRepository employeeRepo,
             IResourceRepository resourceRepo, 
             IRequestRepository repo, 
+            IAccessRoleRepository roleRepo,
             IMailService mailSrv, 
             ILdapService ldapSrv,
             HistoryService historySrv,
@@ -36,6 +39,7 @@ namespace RequestsAccess.Controllers
         {
             employeeesRepository = employeeRepo;
             resourcesRepository = resourceRepo;
+            roleRepository = roleRepo;
             repository = repo;
             mailService = mailSrv;
             ldapService = ldapSrv;
@@ -68,7 +72,7 @@ namespace RequestsAccess.Controllers
             Employee currEmployee = ldapService.GetUserEmployee();
             ViewBag.Title = "Заявки мне на согласование";
             return View("List", repository.Requests
-                .Where(r => r.State == RequestState.Approving && r.ResourceAccesses.Any(ra => ra.Resource.OwnerEmployeeID == currEmployee.EmployeeID)));
+                .Where(r => r.State == RequestState.Approving && r.Details.Any(d => d.Resource.OwnerEmployeeID == currEmployee.EmployeeID)));
         }
 
         public IActionResult Create()
@@ -88,9 +92,15 @@ namespace RequestsAccess.Controllers
             Request req = repository.Requests.FirstOrDefault(p => p.RequestID == requestId);
             Employee currentEmployee = ldapService.GetUserEmployee();
             int currentEmployeeId = currentEmployee.EmployeeID;
-            if (req.AuthorID == currentEmployee.EmployeeID || req.ResourceAccesses.Any(ra => ra.Resource.OwnerEmployeeID == currentEmployeeId))
+            if (req.AuthorID == currentEmployee.EmployeeID || req.Details.Any(ra => ra.Resource.OwnerEmployeeID == currentEmployeeId))
             {
-                foreach (ResourceAccess ra in req.ResourceAccesses)
+                foreach (RequestDetail rd in req.Details)
+                {
+                    rd.CanApprove = (req.State == RequestState.Approving && rd.Resource.OwnerEmployeeID == currentEmployeeId);
+                    rd.CanDelete = req.State == RequestState.New;
+                }
+
+                /*foreach (ResourceAccess ra in req.ResourceAccesses)
                 {
                     ra.CanApprove = (req.State == RequestState.Approving && ra.Resource.OwnerEmployeeID == currentEmployeeId);
                     ra.CanDelete = req.State == RequestState.New;
@@ -98,8 +108,8 @@ namespace RequestsAccess.Controllers
                 foreach (EmployeeAccess ea in req.EmployeeAccesses)
                 {
                     ea.CanDelete = (req.State == RequestState.New) && req.AuthorID == currentEmployeeId;
-                    
-                }
+
+                }*/
                 return View(req);
             }
             else
@@ -153,6 +163,29 @@ namespace RequestsAccess.Controllers
         }
 
         [HttpPost]
+        public ActionResult AddDetail(int index, string resourceId, string employeeId, string roleId)
+        {
+            int resId = int.Parse(resourceId);
+            int accessRoleId = int.Parse(roleId);
+            int emplId = int.Parse(employeeId);
+            Resource res = resourcesRepository.Resources.FirstOrDefault(e => e.ResourceID.Equals(resId));
+            Employee empl = employeeesRepository.Employees.FirstOrDefault(e => e.EmployeeID.Equals(emplId));
+            var newObj = new RequestDetail()
+            {
+                ResourceID = resId,
+                Resource = res,
+                ResourceOwnerID = res.OwnerEmployee.EmployeeID,
+                ResourceOwner = res.OwnerEmployee,
+                EmployeeAccess = empl,
+                EmployeeAccessID = emplId,
+                RoleID = accessRoleId,
+                Role = roleRepository.Roles.FirstOrDefault(e => e.ID.Equals(accessRoleId))
+            };
+            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", index);
+            return PartialView("~/Views/Request/Detail.cshtml", newObj);
+        }
+
+        [HttpPost]
         public IActionResult Send(Request model)        
         {
             Request req = SaveRequstPost(model);
@@ -167,7 +200,7 @@ namespace RequestsAccess.Controllers
                 string mess = $"Заявка {req.RequestID} была отправлена на согласование";                
                 historyService.AddRow(req, mess);
                 TempData["message"] = mess;
-                foreach (Employee empl in req.ResourceAccesses.Select(ra => ra.Resource.OwnerEmployee).Distinct())
+                foreach (Employee empl in req.Details.Select(d => d.Resource.OwnerEmployee).Distinct())
                 {
                     SendEmail(req, empl);
                 }
@@ -182,7 +215,7 @@ namespace RequestsAccess.Controllers
             {
                 Recipient = recipient,
                 Request = req,
-                Resources = req.ResourceAccesses.Select(ra => ra.Resource).Where(r => r.OwnerEmployeeID == recipient.EmployeeID),
+                Resources = req.Details.Select(d => d.Resource).Where(r => r.OwnerEmployeeID == recipient.EmployeeID),
                 Url = this.AbsoluteAction("Approve", "Request", new { requestId = req.RequestID })
             };
             var viewHtml = await this.RenderViewAsync("Approve", model, true);
@@ -207,13 +240,13 @@ namespace RequestsAccess.Controllers
         {
             Request req = SaveRequstPost(model);
             string mess = "";
-            if (req.ResourceAccesses.Any(ra => ra.ApprovingResult == ResourceApprovingResult.None))
+            if (req.Details.Any(d => d.ApprovingResult == ResourceApprovingResult.None))
             {
                 mess = $"Согласование заявки {req.RequestID} завершено";              
             }
             else
             {
-                if (!req.ResourceAccesses.Any(ra => ra.ApprovingResult == ResourceApprovingResult.Approved))
+                if (!req.Details.Any(d => d.ApprovingResult == ResourceApprovingResult.Approved))
                 {
                     req.State = RequestState.Canceled;
                     mess = $"Заявке {req.RequestID} было отказано в согласовании";
@@ -259,8 +292,9 @@ namespace RequestsAccess.Controllers
 
         private Request SaveRequstPost(Request model)
         {
-            var employeeAccesses = model.EmployeeAccesses?.Where(c => !c.IsDeleted).ToList();
-            var resourceAccesses = model.ResourceAccesses?.Where(c => !c.IsDeleted).ToList();
+            //var employeeAccesses = model.EmployeeAccesses?.Where(c => !c.IsDeleted).ToList();
+            //var resourceAccesses = model.ResourceAccesses?.Where(c => !c.IsDeleted).ToList();
+            var details = model.Details?.Where(c => !c.IsDeleted).ToList();
 
             if (ModelState.IsValid)
             {
@@ -273,8 +307,9 @@ namespace RequestsAccess.Controllers
                 }        
                 string mess = "";
 
-                model.EmployeeAccesses = employeeAccesses;
-                model.ResourceAccesses = resourceAccesses;
+                //model.EmployeeAccesses = employeeAccesses;
+                //model.ResourceAccesses = resourceAccesses;
+                model.Details = details;
                 model.ChangeDate = DateTime.Now;
                 repository.SaveRequest(model);
                 Request req = repository.Requests.First(r => r.RequestID.Equals(model.RequestID));
@@ -288,19 +323,36 @@ namespace RequestsAccess.Controllers
             }
             else
             {
-                if (employeeAccesses != null)
-                    employeeAccesses.ForEach(ea => ea.Employee = employeeesRepository.Employees.First(em => em.EmployeeID.Equals(ea.EmployeeID)));
-                if (resourceAccesses != null)
-                    resourceAccesses.ForEach(ra => ra.Resource = resourcesRepository.Resources.First(r => r.ResourceID.Equals(ra.ResourceID)));
-                model.EmployeeAccesses = employeeAccesses;
-                model.ResourceAccesses = resourceAccesses;
+                /* if (employeeAccesses != null)
+                     employeeAccesses.ForEach(ea => ea.Employee = employeeesRepository.Employees.First(em => em.EmployeeID.Equals(ea.EmployeeID)));
+                 if (resourceAccesses != null)
+                     resourceAccesses.ForEach(ra => ra.Resource = resourcesRepository.Resources.First(r => r.ResourceID.Equals(ra.ResourceID)));
+                 model.EmployeeAccesses = employeeAccesses;
+                 model.ResourceAccesses = resourceAccesses;*/
+                if (details != null)
+                {
+                    details.ForEach(d => d.EmployeeAccess = employeeesRepository.Employees.First(em => em.EmployeeID.Equals(d.EmployeeAccessID)));
+                    details.ForEach(d => d.Resource = resourcesRepository.Resources.First(r => r.ResourceID.Equals(d.ResourceID)));
+                    details.ForEach(d => d.ResourceOwner = employeeesRepository.Employees.First(em => em.EmployeeID.Equals(d.ResourceOwnerID)));
+                    details.ForEach(d => d.Role = roleRepository.Roles.First(r => r.ID.Equals(d.RoleID)));
+                }
+
+                model.Details = details;
                 model.Author = employeeesRepository.Employees.FirstOrDefault(e => e.EmployeeID == model.AuthorID);
                 return null;
             }
         }
 
-
-
+        [HttpGet]
+        public ActionResult GetRoles(string resourceId)
+        {
+            if (int.TryParse(resourceId, out int resId))
+            {               
+                IEnumerable<AccessRole> roles = resourcesRepository.Resources.First(r => r.ResourceID == int.Parse(resourceId)).Roles;
+                return Json(roles);               
+            }
+            return null;
+        }
 
         /*[HttpPost]
         public IActionResult Delete(int resourceId)

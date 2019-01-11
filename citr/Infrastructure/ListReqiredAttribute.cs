@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using RequestsAccess.Models;
+using citr.Models;
 
-namespace RequestsAccess.Infrastructure
+namespace citr.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class ListReqiredAttribute : RequiredAttribute

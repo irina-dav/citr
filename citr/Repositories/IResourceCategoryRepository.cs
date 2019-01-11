@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RequestsAccess.Models;
+using citr.Models;
 
-namespace RequestsAccess.Repositories
+namespace citr.Repositories
 {
     public interface IResourceCategoryRepository
     {

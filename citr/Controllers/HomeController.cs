@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RequestsAccess.Models;
+using citr.Models;
 
-namespace RequestsAccess.Controllers
+namespace citr.Controllers
 {
     public class HomeController : Controller
     {

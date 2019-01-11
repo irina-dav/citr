@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RequestsAccess {
+namespace citr {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace RequestsAccess {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RequestsAccess.ValidationRes", typeof(ValidationRes).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("citr.ValidationRes", typeof(ValidationRes).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

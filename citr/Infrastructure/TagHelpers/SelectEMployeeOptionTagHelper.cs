@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Reflection;
-using RequestsAccess.Models;
+using citr.Models;
 
-namespace RequestsAccess.Infrastructure.TagHelpers
+namespace citr.Infrastructure.TagHelpers
 {
     [HtmlTargetElement("select", Attributes = "model-for")]
     public class SelectEmployeeOptionTagHelper : TagHelper

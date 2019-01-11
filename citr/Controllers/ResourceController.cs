@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RequestsAccess.Models;
-using RequestsAccess.Infrastructure;
-using RequestsAccess.Models.ViewModels;
+using citr.Models;
+using citr.Infrastructure;
+using citr.Models.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using RequestsAccess.Services;
+using citr.Services;
 
-namespace RequestsAccess.Controllers
+namespace citr.Controllers
 {
     //[Authorize]
     public class ResourceController : Controller

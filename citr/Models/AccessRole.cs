@@ -6,16 +6,11 @@ using System.Threading.Tasks;
 
 namespace citr.Models
 {
-    public class ResourceCategory
+    public class AccessRole
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
-        public int ParentCategoryID { get; set; }
-
         public string Name { get; set; }
-
-        public string Description { get; set; }
-
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using RequestsAccess.Services;
+using citr.Services;
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class HistoryRow
     {

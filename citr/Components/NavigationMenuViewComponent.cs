@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RequestsAccess.Models;
+using citr.Models;
 
-namespace RequestsAccess.Components
+namespace citr.Components
 {
     public class NavigationMenuViewComponent : ViewComponent
     {

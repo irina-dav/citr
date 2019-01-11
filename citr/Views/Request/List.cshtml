@@ -30,8 +30,8 @@
                     <td>@req.CreateDate</td>
                     <td>@req.ChangeDate</td>
                     <td>@req.State.GetDisplayName()</td>
-                    <td>@string.Join(", ", req.ResourceAccesses.Select(r => r.Resource.Name))</td>
-                    <td>@string.Join(", ", req.EmployeeAccesses.Select(e => e.Employee.FullName))</td>
+                    <td>@string.Join(", ", req.Details.Select(r => r.Resource.Name))</td>
+                    <td>@string.Join(", ", req.Details.Select(e => e.EmployeeAccess.FullName))</td>
                     <td>@req.Author?.FullName</td>
                     <td class="text-center">
                         <a  asp-controller="Request" asp-action="Edit" class="btn btn-sm btn-outline-info" asp-route-requestId="@req.RequestID">Открыть</a>

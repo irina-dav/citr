@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RequestsAccess.Infrastructure;
-using RequestsAccess.Models;
-using RequestsAccess.Repositories;
+using citr.Infrastructure;
+using citr.Models;
+using citr.Repositories;
 
-namespace RequestsAccess.Controllers
+namespace citr.Controllers
 {
     public class ResourceCategoryController : Controller
     {

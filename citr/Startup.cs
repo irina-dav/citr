@@ -11,13 +11,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using RequestsAccess.Models;
-using RequestsAccess.Repositories;
-using RequestsAccess.Infrastructure;
-using RequestsAccess.Services;
+using citr.Models;
+using citr.Repositories;
+using citr.Infrastructure;
+using citr.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace RequestsAccess
+namespace citr
 {
     public class Startup
     {
@@ -41,6 +41,7 @@ namespace RequestsAccess
             services.AddTransient<IEmployeeRepository, EFEmployeesRepository>();
             services.AddTransient<IRequestRepository, EFRequestRepository>();
             services.AddTransient<IResourceCategoryRepository, EFResourceCategoryRepository>();
+            services.AddTransient<IAccessRoleRepository, EFAcessRoleRepository>();
 
             services.AddScoped<IMailService, MailService>();
 

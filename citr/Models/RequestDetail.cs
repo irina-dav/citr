@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace citr.Models
 {
-    public interface IViewTableRow
+    public class RequestDetail : IViewTableRow
     {
-       bool IsDeleted { get; set; }
-    }
-
-    public class ResourceAccess : IViewTableRow
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
         public int ResourceID { get; set; }
-
         public virtual Resource Resource { get; set; }
+       
+        public int ResourceOwnerID { get; set; }
+        public virtual Employee ResourceOwner { get; set; }
+
+        public int RoleID { get; set; }
+        public virtual AccessRole Role { get; set; }
+
+        public int EmployeeAccessID { get; set; }
+        public Employee EmployeeAccess { get; set; }
 
         public ResourceApprovingResult ApprovingResult { get; set; }
 
@@ -31,15 +32,6 @@ namespace citr.Models
 
         [NotMapped]
         public bool CanApprove { get; set; }
-    }
 
-    public enum ResourceApprovingResult
-    {
-        [Display(Name = "")]
-        None,
-        [Display(Name = "Согласовано")]
-        Approved,
-        [Display(Name = "Отказ")]
-        Declined
     }
 }

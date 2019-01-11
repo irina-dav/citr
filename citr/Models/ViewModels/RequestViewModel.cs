@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RequestsAccess.Models.ViewModels
+namespace citr.Models.ViewModels
 {
     public class RequestViewModel
     {

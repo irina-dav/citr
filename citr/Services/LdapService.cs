@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Novell.Directory.Ldap;
-using RequestsAccess.Models;
+using citr.Models;
 
-namespace RequestsAccess.Services
+namespace citr.Services
 {
     public interface ILdapService
     {

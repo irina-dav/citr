@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RequestsAccess.Models
+namespace citr.Models
 {
     public class EFRequestRepository : IRequestRepository
     {
@@ -18,10 +18,11 @@ namespace RequestsAccess.Models
         public IEnumerable<Request> Requests =>
             context.Requests
             .Include(r => r.History)
-            .Include(r => r.ResourceAccesses)
-            .ThenInclude(r => r.Resource)            
-            .Include(r => r.EmployeeAccesses)
-            .ThenInclude(r => r.Employee);
+            .Include(r => r.Details)
+            .ThenInclude(r => r.Resource);
+                    
+            //.Include(r => r.EmployeeAccesses)
+            //.ThenInclude(r => r.Employee);
 
   
         public void SaveRequest(Request request)
@@ -35,18 +36,20 @@ namespace RequestsAccess.Models
                 //context.AttachRange(request.EmployeeAccesses.Select(l => l.Employee));
                 
                var fromDb = context.Requests
-                     .Include(r => r.ResourceAccesses)
-                     .ThenInclude(r => r.Resource)
-                     .Include(r => r.History)
-                     .Include(r => r.EmployeeAccesses)
-                     .ThenInclude(r => r.Employee).SingleOrDefault(x => x.RequestID.Equals(request.RequestID));
+                     //.Include(r => r.ResourceAccesses)
+                     .Include(r => r.Details)
+                //.ThenInclude(r => r.Resource)
+                .Include(r => r.History)
+                //.Include(r => r.EmployeeAccesses)
+                //.ThenInclude(r => r.Employee)
+                .SingleOrDefault(x => x.RequestID.Equals(request.RequestID));
 
                 fromDb.Comment = request.Comment;
                 fromDb.ChangeDate = request.ChangeDate;
                 fromDb.State = request.State;
                 context.Entry(fromDb).State = EntityState.Modified;
 
-                foreach (var ea in fromDb.EmployeeAccesses)
+                /*foreach (var ea in fromDb.EmployeeAccesses)
                 {
                     context.Entry(ea).State = EntityState.Deleted;
                 }
@@ -54,9 +57,14 @@ namespace RequestsAccess.Models
                 foreach (var ra in fromDb.ResourceAccesses)
                 {
                     context.Entry(ra).State = EntityState.Deleted;
+                }*/
+                foreach (var d in fromDb.Details)
+                {
+                    context.Entry(d).State = EntityState.Deleted;
                 }
-                fromDb.ResourceAccesses.AddRange(new List<ResourceAccess>(request.ResourceAccesses));
-                
+                fromDb.Details.AddRange(new List<RequestDetail>(request.Details));
+                // fromDb.ResourceAccesses.AddRange(new List<ResourceAccess>(request.ResourceAccesses));
+
                 /*if (fromDb.History != null)
                 {
                     foreach (var hr in fromDb.History)
@@ -65,7 +73,7 @@ namespace RequestsAccess.Models
                     }
                     fromDb.History.AddRange(new List<HistoryRow>(request.History));
                 }*/
-               // context.Entry(request).State = EntityState.Modified;
+                // context.Entry(request).State = EntityState.Modified;
             }
             context.SaveChanges();
         }

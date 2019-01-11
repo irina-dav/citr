@@ -1,5 +1,5 @@
 ﻿@model Resource
-@addTagHelper RequestsAccess.Infrastructure.TagHelpers.SelectEmployeeOptionTagHelper, RequestsAccess
+@addTagHelper citr.Infrastructure.TagHelpers.SelectEmployeeOptionTagHelper, citr
 @{
     ViewBag.Title = "Редактирование ресурса";
     Layout = "_Layout";
@@ -45,6 +45,12 @@
                     <input asp-for="CategoryID" class="form-control" />
                 </div>
                 <partial name="CategoryTree.cshtml" />
+            </div>
+            <div class="form-group">
+                @if (Model.Roles != null)
+                {
+                    string.Join("<br>", Model.Roles?.Select(r => r.Name));
+                        }
             </div>
             <div class="text-center">
                 <button class="btn btn-primary" type="submit">Сохранить</button>
