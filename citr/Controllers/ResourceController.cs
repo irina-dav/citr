@@ -10,6 +10,7 @@ using citr.Models.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using citr.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace citr.Controllers
 {
@@ -18,14 +19,22 @@ namespace citr.Controllers
     {
         private IResourceRepository repository;
         private IEmployeeRepository employeeesRepository;
+        private IRequestRepository requestRepository;
         private ApplicationDbContext context;
         private readonly CategoryTree categoryTree;
         private readonly HistoryService historyService;
 
-        public ResourceController(IEmployeeRepository employeeRepo, IResourceRepository repo, ApplicationDbContext ctx, CategoryTree catTree, HistoryService historySrv)
+        public ResourceController(
+            IEmployeeRepository employeeRepo, 
+            IResourceRepository repo,
+            IRequestRepository requestRepo,
+            ApplicationDbContext ctx,
+            CategoryTree catTree,
+            HistoryService historySrv)
         {
             employeeesRepository = employeeRepo;
             repository = repo;
+            requestRepository = requestRepo;
             context = ctx;
             categoryTree = catTree;
             historyService = historySrv;
@@ -46,6 +55,7 @@ namespace citr.Controllers
         [HttpPost]
         public IActionResult Edit(Resource model)
         {
+            var roles = model.Roles?.Where(c => !c.IsDeleted).ToList();
             if (ModelState.IsValid)
             {
                 if (model.ResourceID == 0)
@@ -53,14 +63,17 @@ namespace citr.Controllers
                     model.CreationDate = DateTime.Now;
                 }
                 model.ChangeDate = DateTime.Now;
-                string mess = $"Ресурс {model.Name} был сохранён";               
-                repository.SaveResource(model);
+                model.Roles = roles;
+                repository.SaveResource(model);                
+                string mess = $"Ресурс {model.Name} был сохранён";
+
                 historyService.AddRow(model, mess);
                 TempData["message"] = mess;
                 return RedirectToAction("List");
             }
             else
             {
+                model.Roles = roles;
                 return View(model);
             }
         }
@@ -80,6 +93,29 @@ namespace citr.Controllers
                 TempData["message"] = $"{deletedResource.Name} был удалён";
             }
             return RedirectToAction("List");
+        }
+
+        [HttpPost]
+        public ActionResult AddRole(int index, string roleName)
+        {          
+            var newObj = new AccessRole()
+            {
+                Name = roleName
+            };
+            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("Roles[{0}]", index);
+            return PartialView("~/Views/Resource/Role.cshtml", newObj);
+        }
+
+        [HttpGet]
+        public ActionResult CheckRoleReferences(int roleId)
+        {
+            var reqs = requestRepository.Requests.Where(r => r.Details.Any(d => d.RoleID == roleId));
+            
+            if (reqs.Count() > 0)
+            {
+                return Json(reqs.Select(r => r.RequestID));
+            }
+            return Json(new EmptyResult());
         }
     }
 }

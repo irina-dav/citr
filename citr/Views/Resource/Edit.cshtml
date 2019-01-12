@@ -47,10 +47,40 @@
                 <partial name="CategoryTree.cshtml" />
             </div>
             <div class="form-group">
-                @if (Model.Roles != null)
-                {
-                    string.Join("<br>", Model.Roles?.Select(r => r.Name));
-                        }
+                <label class="font-weight-bold">Роли (уровни доступа)</label>
+                <div><span asp-validation-for="Roles" class="text-danger"></span></div>
+                <div class="input-group col-8">
+                    <table id="tblRoles" class="table table-sm small">
+                        <tbody>
+                            @if (Model.Roles != null)
+                            {
+                                for (int i = 0; i < Model.Roles.Count; i++)
+                                {
+                                    var vd = new ViewDataDictionary(ViewData);
+                                    vd.TemplateInfo.HtmlFieldPrefix = string.Format("Roles[{0}]", i);
+                                    <partial name="Role" model=@Model.Roles[i] view-data=vd />
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="input-group col-8">
+                    <table class="table table-sm small">
+                        <tr>
+                            <td class="align-middle" width="75%">
+                                <input id="newRoleName" class="form-control form-control-sm" />
+                            </td>
+                            <td class="align-middle text-left" width="25%">
+                                <div class="btn-group btn-group-sm ">
+                                    <button type="button" class="btn btn-outline-info btn-sm rounded-0  btn-role-action " id="addRole"
+                                            data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Укажите название новой роли">
+                                        Добавить <span class="fa fa-plus-circle"></span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             <div class="text-center">
                 <button class="btn btn-primary" type="submit">Сохранить</button>
@@ -61,5 +91,55 @@
     <div class="card-footer text-muted">
         ...
     </div>
-    <partial name="History"model="@Model.History" />
+    <partial name="History" model="@Model.History" />
 </div>
+
+<script type="text/javascript">
+    $('#addRole').click(function () {
+        var nextIndex = $("#tblRoles tbody tr").length;
+        var newRoleName = $("#newRoleName").val();
+        if (newRoleName.length == 0) {
+            $('#newRoleName').popover('show');
+        } else {
+            $.ajax({
+                url: '@Url.Action("AddRole", "Resource")',
+                type: 'POST',
+                data: { index: nextIndex, roleName: newRoleName},
+                success: function (results) {
+                    $("#tblRoles tbody").append(results);
+                }
+                });
+                }
+                });
+
+    $('#addaddRoleDetail').mouseleave(function () {
+                $(this).popover('hide');
+                });
+
+    $("#tblRoles").on("click", ".delete-role", function () {
+        var btn = $(this);
+        roleId = $(this).closest('tr').find('.role-id').val();
+        roleName = $(this).closest('tr').find('.role-name').val();
+        $.getJSON('@Url.Action("CheckRoleReferences", "Resource")', { roleId: roleId }, function (reqs) {
+            if (reqs != null && !jQuery.isEmptyObject(reqs)) {
+                $.alert({
+                    boxWidth: '500px',
+                    useBootstrap: false,
+                    title: 'Удаление роли невозможно',
+                    content: "Роль <b>" + roleName + "</b> не может быть удалена, т.к. используется в следующих заявках на доступы: " + reqs,
+                    theme: 'bootstrap',
+                });    
+            }
+            else {
+                btn.closest('tr').hide();
+                btn.prev('input').val('true');
+            }
+        });
+    });
+
+    $("#tblRoles").on("click", ".edit-role", function () {
+        $(this).closest('tr').find('.role-name').prop('readonly', false);
+    });
+
+      
+</script>

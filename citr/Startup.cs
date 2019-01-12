@@ -41,7 +41,7 @@ namespace citr
             services.AddTransient<IEmployeeRepository, EFEmployeesRepository>();
             services.AddTransient<IRequestRepository, EFRequestRepository>();
             services.AddTransient<IResourceCategoryRepository, EFResourceCategoryRepository>();
-            services.AddTransient<IAccessRoleRepository, EFAcessRoleRepository>();
+            services.AddTransient<IAccessRoleRepository, EFAccessRoleRepository>();
 
             services.AddScoped<IMailService, MailService>();
 

@@ -351,7 +351,7 @@ namespace citr.Controllers
                 IEnumerable<AccessRole> roles = resourcesRepository.Resources.First(r => r.ResourceID == int.Parse(resourceId)).Roles;
                 return Json(roles);               
             }
-            return null;
+            return Json(new EmptyResult());
         }
 
         /*[HttpPost]

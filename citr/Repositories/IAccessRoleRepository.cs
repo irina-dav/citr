@@ -11,6 +11,8 @@ namespace citr.Models
 
         void SaveRole(AccessRole role);
 
+        AccessRole DeleteRole(int roleId);
+
         //void AddRequestEvent(Request request, string textEvent);
     }
 }

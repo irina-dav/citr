@@ -74,6 +74,10 @@ namespace citr.Controllers
                     TempData["Error"] = $"Не удалось удалить категорию <strong>{categoryToDel.Name}</strong>: на неё есть ссылки в других объектах.";
                     return RedirectToAction(nameof(Index));
                 }
+                else
+                {
+                    throw;
+                }
             }
             catch
             {

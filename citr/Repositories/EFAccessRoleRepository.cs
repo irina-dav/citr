@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace citr.Models
 {
-    public class EFAcessRoleRepository : IAccessRoleRepository
+    public class EFAccessRoleRepository : IAccessRoleRepository
     {
         private ApplicationDbContext context;
 
-        public EFAcessRoleRepository(ApplicationDbContext ctx)
+        public EFAccessRoleRepository(ApplicationDbContext ctx)
         {
             context = ctx;
         }
@@ -29,6 +29,17 @@ namespace citr.Models
                 context.Entry(role).State = EntityState.Modified;
             }
             context.SaveChanges();
+        }
+
+        public AccessRole DeleteRole(int roleId)
+        {
+            AccessRole dbEntry = context.AccessRoles.FirstOrDefault(r => r.ID.Equals(roleId));
+            if (dbEntry != null)
+            {
+                context.AccessRoles.Remove(dbEntry);
+                context.SaveChanges();
+            }
+            return dbEntry;
         }
     }
 }
