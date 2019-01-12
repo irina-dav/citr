@@ -18,52 +18,37 @@
         <form asp-action="Edit" method="post" novalidate>
             <input type="hidden" asp-for="ResourceID" />
             <div class="form-group">
-                <label asp-for="Name"></label>
+                <label asp-for="Name" class="font-weight-bold"></label>
                 <div><span asp-validation-for="Name" class="text-danger"></span></div>
                 <input asp-for="Name" class="form-control" />
             </div>
             <div class="form-group">
-                <label asp-for="Description"></label>
+                <label asp-for="Description" class="font-weight-bold"></label>
                 <div><span asp-validation-for="Description" class="text-danger"></span></div>
                 <textarea asp-for="Description" class="form-control"></textarea>
             </div>
             <div class="form-group">
-                <label asp-for="OwnerEmployeeID"></label>
+                <label asp-for="OwnerEmployeeID" class="font-weight-bold"></label>
                 <div><span asp-validation-for="OwnerEmployeeID" class="text-danger"></span></div>
                 <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single" asp-items="@(new SelectList(empls, "EmployeeID", "FullName"))">
                     <option disabled selected value="">Выберите владельца</option>
                 </select>
             </div>
             <div class="form-group">
-                <label asp-for="CategoryID"></label>
+                <label asp-for="CategoryID" class="font-weight-bold"></label>
                 <div><span asp-validation-for="CategoryID" class="text-danger"></span></div>
-                <div class="input-group">
+                <div class="input-group input-group-sm">
                     <div class="input-group-append">
                         <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#categoryModal">Выбрать</button>
                     </div>
                     <label class="form-control" id="ResourceCategoryName">@Model.Category?.Name</label>
-                    <input asp-for="CategoryID" class="form-control" />
+                    <input hidden asp-for="CategoryID" class="form-control" />
                 </div>
                 <partial name="CategoryTree.cshtml" />
             </div>
             <div class="form-group">
                 <label class="font-weight-bold">Роли (уровни доступа)</label>
                 <div><span asp-validation-for="Roles" class="text-danger"></span></div>
-                <div class="input-group col-8">
-                    <table id="tblRoles" class="table table-sm small">
-                        <tbody>
-                            @if (Model.Roles != null)
-                            {
-                                for (int i = 0; i < Model.Roles.Count; i++)
-                                {
-                                    var vd = new ViewDataDictionary(ViewData);
-                                    vd.TemplateInfo.HtmlFieldPrefix = string.Format("Roles[{0}]", i);
-                                    <partial name="Role" model=@Model.Roles[i] view-data=vd />
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </div>
                 <div class="input-group col-8">
                     <table class="table table-sm small">
                         <tr>
@@ -81,6 +66,22 @@
                         </tr>
                     </table>
                 </div>
+                <div class="input-group col-8">
+                    <table id="tblRoles" class="table table-sm small">
+                        <tbody>
+                            @if (Model.Roles != null)
+                            {
+                                for (int i = 0; i < Model.Roles.Count; i++)
+                                {
+                                    var vd = new ViewDataDictionary(ViewData);
+                                    vd.TemplateInfo.HtmlFieldPrefix = string.Format("Roles[{0}]", i);
+                                    <partial name="Role" model=@Model.Roles[i] view-data=vd />
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
             </div>
             <div class="text-center">
                 <button class="btn btn-primary" type="submit">Сохранить</button>

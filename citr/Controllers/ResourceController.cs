@@ -84,6 +84,21 @@ namespace citr.Controllers
             return View("Edit", new Resource());
         }
 
+        public ViewResult Copy(int sourceId)
+        {            
+            Resource res = repository.Resources.FirstOrDefault(p => p.ResourceID == sourceId);
+            Resource newRes = new Resource()
+            {
+                CategoryID = res.CategoryID,
+                Description = res.Description,
+                Name = res.Name,
+                OwnerEmployeeID = res.OwnerEmployeeID,
+                Roles = new List<AccessRole>(res.Roles.Select(r => new AccessRole() { Name = r.Name }))
+            };
+            ViewBag.Json = categoryTree.GetCategoriesJson(res.CategoryID);         
+            return View("Edit", newRes);
+        }
+
         [HttpPost]
         public IActionResult Delete(int resourceId)
         {

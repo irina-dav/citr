@@ -85,6 +85,30 @@ namespace citr.Controllers
             });
         }
 
+        public ViewResult Copy(int sourceId)
+        {
+            Request req = repository.Requests.FirstOrDefault(p => p.RequestID == sourceId);
+            Request newReq = new Request()
+            {
+                State = RequestState.New,
+                Author = ldapService.GetUserEmployee(),
+                AuthorID = ldapService.GetUserEmployee().EmployeeID,
+                Comment = req.Comment,
+                Details = new List<RequestDetail>(req.Details.Select(d => new RequestDetail()
+                {
+                    Resource = d.Resource,
+                    ResourceID = d.ResourceID,
+                    ResourceOwner = d.ResourceOwner,
+                    EmployeeAccess = d.EmployeeAccess,
+                    EmployeeAccessID = d.EmployeeAccessID,
+                    ResourceOwnerID = d.Resource.OwnerEmployee.EmployeeID,
+                    RoleID = d.RoleID,    
+                    Role = d.Role
+                }))
+            };            
+            return View("Edit", newReq);
+        }
+
         //[Route("Request/Approve", Order = 1)]
         //[Route("Request/Edit", Order = 0)]        
         public IActionResult Edit(int requestId)

@@ -5,20 +5,24 @@
     Layout = "_LayoutList";
 }
 <div class="col-md-10 col-md-offset-1">
-        <div class="panel-body">
-            <table id="list" class="table table-bordered table-sm small">
-                <thead>
-                    <tr>
-                        <th style="width: 20%">Название</th>
-                        <th style="width: 10%">Владелец</th>
-                        <th style="width: 20%">Описание</th>
-                        <th style="width: 20%">Категория</th>
-                        <th style="width: 15%">Дата изменения</th>
-                        <th style="width: 15%" class="text-center">Действия</th>
-                    </tr>
-                    </thead>
-                    @foreach (Resource res in Model)
-                    {
+    <h2>
+        Информационные ресурсы
+        <a asp-action="Create" class="btn btn-link btn-light btn-sm rounded-0">Создать новый ресурс</a>
+    </h2>
+    <div class="panel-body">
+        <table id="list" class="table table-bordered table-sm small">
+            <thead>
+                <tr>
+                    <th style="width: 20%">Название</th>
+                    <th style="width: 10%">Владелец</th>
+                    <th style="width: 20%">Описание</th>
+                    <th style="width: 20%">Категория</th>
+                    <th style="width: 10%">Дата изменения</th>
+                    <th style="width: 20%" class="text-center">Действия</th>
+                </tr>
+            </thead>
+            @foreach (Resource res in Model)
+            {
                 <tr>
                     <td>@res.Name</td>
                     <td>@res.OwnerEmployee?.Account</td>
@@ -27,14 +31,15 @@
                     <td>@res.ChangeDate</td>
                     <td class="text-center">
                         <form asp-action="Delete" method="post">
-                            <a asp-action="Edit" class="btn btn-sm btn-outline-warning" asp-route-resourceId="@res.ResourceID">Открыть</a>
+                            <a asp-action="Edit" class="btn  btn-sm rounded-0 btn-list-action btn-outline-success p-0 m-0" asp-route-resourceId="@res.ResourceID">Открыть</a>
+                            <a asp-action="Copy" class="btn  btn-sm rounded-0 btn-list-action btn-outline-info p-0 m-0" asp-route-sourceId="@res.ResourceID">Копировать</a>
                             <input type="hidden" name="ResourceID" value="@res.ResourceID" />
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+                            <button type="submit" class="btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0">Удалить</button>
                         </form>
                     </td>
                 </tr>
-                    }
-            </table>
-        </div>
+            }
+        </table>
+    </div>
 
 </div>

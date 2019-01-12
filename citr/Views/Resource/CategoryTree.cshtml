@@ -33,16 +33,19 @@
         .jstree({
             core: {
                 themes: {
-                name: 'proton',
-                responsive: true
-            },
+                    name: 'proton',
+                    responsive: true,
+                    icons: false,
+                },
                 data: jsonData,
                 multiple: false
-            },
+                },
                 checkbox: {
                     keep_selected_style: false,
                     three_state: false
             },
             plugins: ["checkbox"]
+        }).bind("ready.jstree", function (event, data) {
+            $(this).jstree("open_all");
         });
 </script>
