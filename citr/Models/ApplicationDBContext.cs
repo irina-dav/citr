@@ -20,6 +20,8 @@ namespace citr.Models
 
         public DbSet<ResourceCategory> ResourceCategories { get; set; }
 
+        public DbSet<RequestDetail> RequestDetail { get; set; }
+
         public DbSet<HistoryRow> History { get; set; }
 
         //public DbSet<EmployeeAccess> EmployeeAccess { get; set; }

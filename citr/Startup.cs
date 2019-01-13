@@ -51,6 +51,8 @@ namespace citr
 
             services.AddScoped<UserManager<AppUser>>();
             services.AddScoped<CategoryTree>();
+            services.AddScoped<OTRSService>();
+            services.AddHostedService<TicketUpdateService>();
 
             // services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -73,6 +75,8 @@ namespace citr
             services.AddScoped<ILdapService, LdapService>();
 
             services.AddScoped<HistoryService>();
+
+
 
             services.AddMvc();
             services.AddHttpContextAccessor();

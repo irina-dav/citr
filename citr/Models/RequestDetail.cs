@@ -33,5 +33,7 @@ namespace citr.Models
         [NotMapped]
         public bool CanApprove { get; set; }
 
+        public string TicketNumber { get; set; }  
+
     }
 }

@@ -25,19 +25,23 @@
             </thead>
             @foreach (Request req in Model)
             {
-                <tr>
-                    <td>@req.RequestID</td>
-                    <td>@req.CreateDate</td>
-                    <td>@req.ChangeDate</td>
-                    <td>@req.State.GetDisplayName()</td>
-                    <td>@string.Join(", ", req.Details.Select(r => r.Resource.Name))</td>
-                    <td>@string.Join(", ", req.Details.Select(e => e.EmployeeAccess.FullName))</td>
-                    <td>@req.Author?.FullName</td>
-                    <td class="text-center">
-                        <a asp-controller="Request" asp-action="Edit" class="btn  btn-sm rounded-0 btn-list-action btn-outline-success p-0 m-0" asp-route-requestId="@req.RequestID">Открыть</a>
-                        <a asp-action="Copy" class="btn  btn-sm rounded-0 btn-list-action btn-outline-info p-0 m-0" asp-route-sourceId="@req.RequestID">Копировать</a>
-                    </td>
-                </tr>
+            <tr>
+                <td>@req.RequestID</td>
+                <td>@req.CreateDate</td>
+                <td>@req.ChangeDate</td>
+                <td>
+                    
+                        @req.State.GetDisplayName()
+                    
+                </td>
+                <td>@string.Join(", ", req.Details.Select(r => r.Resource.Name))</td>
+                <td>@string.Join(", ", req.Details.Select(e => e.EmployeeAccess.FullName))</td>
+                <td>@req.Author?.FullName</td>
+                <td class="text-center">
+                    <a asp-controller="Request" asp-action="Edit" class="btn  btn-sm rounded-0 btn-list-action btn-outline-success p-0 m-0" asp-route-requestId="@req.RequestID">Открыть</a>
+                    <a asp-action="Copy" class="btn  btn-sm rounded-0 btn-list-action btn-outline-info p-0 m-0" asp-route-sourceId="@req.RequestID">Копировать</a>
+                </td>
+            </tr>
             }
         </table>
     </div>

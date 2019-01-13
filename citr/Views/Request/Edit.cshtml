@@ -31,7 +31,7 @@
             <div class="form-group m-0 p-0">
                 <label class="font-weight-bold">Автор заявки:</label>
                 <label class="col-6">@Model.Author.FullName</label>
-            </div>
+            </div>           
         </div>
         <div class="card-body">
             @if (Model.State == RequestState.Approving)
@@ -41,9 +41,12 @@
                 </div>
                 <textarea hidden name="commentApproving" class="form-control h-auto" placeholder="Комментарий, замечание (не обязательно) ... "></textarea>
             }
-                <div class="form-group form-group-sm">
-                    <label class="font-weight-bold">Ресурсы для предоставления доступа</label>
-                    <div><span asp-validation-for="Details" class="text-danger"></span></div>
+
+            <div class="form-group form-group-sm">
+                <label class="font-weight-bold">Ресурсы для предоставления доступа</label>
+                <div><span asp-validation-for="Details" class="text-danger"></span></div>
+                @if (Model.State == RequestState.New)
+                {
                     <div class="form-group row">
                         <label class="col-3 col-form-label">1. Выберите сотрудника</label>
                         <div class="col-9">
@@ -69,7 +72,6 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                            
                         <label class="col-3 col-form-label">4. Нажмите кнопку</label>
                         <div class="col-9">
                             <button type="button" class="btn btn-success rounded-0 btn-sm" id="addDetail"
@@ -78,55 +80,57 @@
                             </button>
                         </div>
                     </div>
-                            <table id="tblDetails" class="table table-sm small table-success mt-2">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 20%;">Доступ для сотрудника</th>
-                                        <th style="width: 20%;">Ресурс</th>
-                                        <th style="width: 15%;">Категория ресурса</th>
-                                        <th style="width: 15%;">Владелец ресурса</th>
-                                        <th style="width: 15%;">Роль (уровень доступа)</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Model.Details != null)
-                                    {
-                                        for (int i = 0; i < Model.Details.Count; i++)
-                                        {
-                                            var vd = new ViewDataDictionary(ViewData);
-                                            vd.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", i);
-                                            <partial name="Detail" model=@Model.Details[i] view-data=vd />
-                                        }
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="form-group form-group-sm">
-                            <label asp-for="Comment" class="font-weight-bold"></label>
-                            <div><span asp-validation-for="Comment" class="text-danger"></span></div>
-                            <textarea asp-for="Comment" class="form-control"></textarea>
-                        </div>
-                        <div class="text-center">
-                            @if (Model.State == RequestState.New)
+                }
+                <table id="tblDetails" class="table table-sm small table-success mt-2">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Доступ для сотрудника</th>
+                            <th style="width: 20%;">Ресурс</th>
+                            <th style="width: 15%;">Роль</th>
+                            <th style="width: 15%;">Владелец ресурса</th>
+                            <th style="width: 15%;">Категория ресурса</th>
+                            <th style="width: 7%;">Состояние</th>
+                            <th style="width: 8%;" class="text-right">Заявка OTRS</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Details != null)
+                        {
+                            for (int i = 0; i < Model.Details.Count; i++)
                             {
-                                <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary " />
-                                <input type="submit" name="response" value="Отправить" formaction=@Url.Action("Send") formmethod="post" class="btn btn-outline-success" />
+                                var vd = new ViewDataDictionary(ViewData);
+                                vd.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", i);
+                                <partial name="Detail" model=@Model.Details[i] view-data=vd />
                             }
-                            @if (Model.State == RequestState.Approving)
-                            {
-                                <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-primary" />
-                            }
-                            <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary">Отмена</a>
-                        </div>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
-                    </div>
+            <div class="form-group form-group-sm">
+                <label asp-for="Comment" class="font-weight-bold"></label>
+                <div><span asp-validation-for="Comment" class="text-danger"></span></div>
+                <textarea asp-for="Comment" class="form-control"></textarea>
+            </div>
+            <div class="text-center">
+                @if (Model.State == RequestState.New)
+                {
+                    <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary " />
+                    <input type="submit" name="response" value="Отправить" formaction=@Url.Action("Send") formmethod="post" class="btn btn-outline-success" />
+                }
+                @if (Model.State == RequestState.Approving)
+                {
+                    <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-primary" />
+                }
+                <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+
+        </div>
         <div class="card-footer text-muted">
             <partial name="History" model="@Model.History" />
         </div>
     </form>
-    
+
 </div>
 <script type="text/javascript">
 
@@ -181,7 +185,7 @@
         $(this).closest('tr').hide();
         $(this).prev('input').val('true');
         });
-  
+
     $(document).ready(function () {
         var state = $("#State").val();
         if (state == 'Approving') {

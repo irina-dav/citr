@@ -19,7 +19,10 @@ namespace citr.Models
 
         [Display(Name = "Описание")]
         public string Description { get; set; }
-        
+
+        [Display(Name = "Расположение")]
+        public string Location { get; set; }
+
         [Required(ErrorMessage = "Выберите категорию ресурса")]     
         //[Range(1, int.MaxValue, ErrorMessage = "Выберите категорию ресурса")]
         [Display(Name = "Категория")]

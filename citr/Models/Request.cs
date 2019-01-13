@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using citr.Infrastructure;
 using citr.Services;
-
+using Microsoft.Extensions.Configuration;
 
 namespace citr.Models
 {
@@ -46,7 +46,12 @@ namespace citr.Models
 
         public virtual List<HistoryRow> History { get; set; }
 
-        public int ObjectID { get => RequestID; }       
+        public int ObjectID { get => RequestID; }
+
+        //public string TicketNumber { get; set; }
+
+        //[NotMapped]
+        //public string TicketUrl { get; set; }     
     }
 
     public enum RequestState

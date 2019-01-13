@@ -1,10 +1,11 @@
 ﻿@model RequestDetail
+@inject OTRSService otrsService
 <tr>
     <td class="align-middle">@Model.EmployeeAccess.FullName</td>
     <td class="align-middle">@Model.Resource.Name</td>
-    <td class="align-middle">@Model.Resource.Category.Name</td>
-    <td class="align-middle">@Model.ResourceOwner.FullName</td>
     <td class="align-middle">@Model.Role.Name</td>
+    <td class="align-middle">@Model.ResourceOwner.FullName</td>
+    <td class="align-middle">@Model.Resource.Category.Name</td>
     <td>
         @if (Model.CanDelete)
         {
@@ -28,6 +29,12 @@
         {
             <input hidden asp-for="ApprovingResult" />
             <div class="text-uppercase"><strong>@Model.ApprovingResult.GetDisplayName()</strong></div>
+        }
+    </td>
+    <td class="text-right align-middle">
+        @if (!string.IsNullOrEmpty(Model.TicketNumber))
+        {
+            <a href=@otrsService.GetTicketUrl(Model.TicketNumber) target="_blank">@Model.TicketNumber</a>
         }
     </td>
     @Html.HiddenFor(m => Model.EmployeeAccessID)

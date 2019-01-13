@@ -25,6 +25,7 @@ namespace citr.Controllers
 
         private IMailService mailService;
         private ILdapService ldapService;
+        private readonly OTRSService otrsService;
         private readonly HistoryService historyService;
         private readonly ApplicationDbContext context;
 
@@ -39,6 +40,7 @@ namespace citr.Controllers
             ILdapService ldapSrv,
             HistoryService historySrv,
             ApplicationDbContext ctx,
+            OTRSService otrsServ,
             ILogger<RequestController> log)
         {
             employeeesRepository = employeeRepo;
@@ -50,6 +52,7 @@ namespace citr.Controllers
             historyService = historySrv;
             context = ctx;
             logger = log;
+            otrsService = otrsServ;
         }
 
         public ViewResult ListAll()
@@ -68,7 +71,9 @@ namespace citr.Controllers
         {
             Employee currEmployee = ldapService.GetUserEmployee();
             ViewBag.Title = "Мои заявки";
-            return View("List", repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID));
+            var requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();
+            //requests.ForEach(r => r.TicketUrl = otrsService.GetTicketUrl(r.TicketNumber));
+            return View("List", requests);
         }
 
         [Authorize]
