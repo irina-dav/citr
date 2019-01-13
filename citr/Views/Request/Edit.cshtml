@@ -37,13 +37,13 @@
             @if (Model.State == RequestState.Approving)
             {
                 <div class="alert alert-warning" role="alert">
-                    Напротив каждого ресурса поставьте отметку о согласовании, после чего нажмите кнопку <strong>Завершить</strong> в нижней части формы.
+                    Напротив каждой строки поставьте отметку о согласовании, после чего нажмите кнопку <strong>Завершить</strong> в нижней части формы.
                 </div>
                 <textarea hidden name="commentApproving" class="form-control h-auto" placeholder="Комментарий, замечание (не обязательно) ... "></textarea>
             }
 
             <div class="form-group form-group-sm">
-                <label class="font-weight-bold">Ресурсы для предоставления доступа</label>
+                
                 <div><span asp-validation-for="Details" class="text-danger"></span></div>
                 @if (Model.State == RequestState.New)
                 {
@@ -75,8 +75,8 @@
                         <label class="col-3 col-form-label">4. Нажмите кнопку</label>
                         <div class="col-9">
                             <button type="button" class="btn btn-success rounded-0 btn-sm" id="addDetail"
-                                    data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Заполнителе поля, расположенные выше">
-                                Добавить
+                                    data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Заполните поля, расположенные выше">
+                                Добавить <span class="fa fa-plus-circle"></span>
                             </button>
                         </div>
                     </div>
@@ -115,14 +115,14 @@
             <div class="text-center">
                 @if (Model.State == RequestState.New)
                 {
-                    <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary " />
-                    <input type="submit" name="response" value="Отправить" formaction=@Url.Action("Send") formmethod="post" class="btn btn-outline-success" />
+                    <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary rounded-0 " />
+                    <input type="submit" name="response" value="Отправить" formaction=@Url.Action("Send") formmethod="post" class="btn btn-outline-success rounded-0 " />
                 }
                 @if (Model.State == RequestState.Approving)
                 {
-                    <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-primary" />
+                    <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-outline-primary rounded-0" />
                 }
-                <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary">Отмена</a>
+                <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary rounded-0">Отмена</a>
             </div>
 
         </div>

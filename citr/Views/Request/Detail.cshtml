@@ -6,20 +6,20 @@
     <td class="align-middle">@Model.Role.Name</td>
     <td class="align-middle">@Model.ResourceOwner.FullName</td>
     <td class="align-middle">@Model.Resource.Category.Name</td>
-    <td>
+    <td class="small">
         @if (Model.CanDelete)
         {
             @Html.HiddenFor(m => Model.IsDeleted)
-            <a class="btn btn-light btn-sm delete-detail ">Удалить</a>
+            <a class="btn btn-outline-warning btn-sm btn-link rounded-0 delete-detail">Удалить <span class="fa fa-trash-o"></span></a>
         }
         @if (Model.CanApprove)
         {
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-success btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Approved ? "active" : "")">
+                <label class="btn btn-success rounded-0 btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Approved ? "active" : "")">
                     <input type="radio" value="@((int)ResourceApprovingResult.Approved)" asp-for="ApprovingResult" autocomplete="off" />
                     <span class="fa fa-check"></span><span>Согласовано</span>
                 </label>
-                <label class="btn btn-danger btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Declined ? "active" : "")">
+                <label class="btn btn-danger rounded-0 btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Declined ? "active" : "")">
                     <input type="radio" value="@((int)ResourceApprovingResult.Declined)" asp-for="ApprovingResult" autocomplete="off" />
                     <span class="fa fa-check"></span>Отказ
                 </label>
