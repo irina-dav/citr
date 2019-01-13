@@ -11,6 +11,7 @@ using citr.Models;
 using citr.Models.ViewModels;
 using citr.Services;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace citr.Controllers
 {
@@ -27,6 +28,8 @@ namespace citr.Controllers
         private readonly HistoryService historyService;
         private readonly ApplicationDbContext context;
 
+        private readonly ILogger logger;
+
         public RequestController(
             IEmployeeRepository employeeRepo,
             IResourceRepository resourceRepo, 
@@ -35,7 +38,8 @@ namespace citr.Controllers
             IMailService mailSrv, 
             ILdapService ldapSrv,
             HistoryService historySrv,
-            ApplicationDbContext ctx)
+            ApplicationDbContext ctx,
+            ILogger<RequestController> log)
         {
             employeeesRepository = employeeRepo;
             resourcesRepository = resourceRepo;
@@ -45,6 +49,7 @@ namespace citr.Controllers
             ldapService = ldapSrv;
             historyService = historySrv;
             context = ctx;
+            logger = log;
         }
 
         public ViewResult ListAll()

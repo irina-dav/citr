@@ -16,6 +16,8 @@ using citr.Repositories;
 using citr.Infrastructure;
 using citr.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Logging;
+using Serilog.Extensions.Logging;
 
 namespace citr
 {
@@ -78,8 +80,10 @@ namespace citr
             services.AddSession();
         }
         
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddFile(Configuration.GetSection("Logging"));
+
             app.UseDeveloperExceptionPage();
             app.UseStatusCodePages();
             app.UseStaticFiles();
