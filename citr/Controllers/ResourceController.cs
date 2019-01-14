@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace citr.Controllers
 {
-    //[Authorize]
+    [Authorize(Roles = "Admins")]
     public class ResourceController : Controller
     {
         private IResourceRepository repository;

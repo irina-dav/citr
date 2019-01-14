@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using citr.Infrastructure;
 using citr.Models;
 using citr.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace citr.Controllers
 {
+    [Authorize(Roles="Admins")]
     public class ResourceCategoryController : Controller
     {
         private readonly CategoryTree categoryTree;

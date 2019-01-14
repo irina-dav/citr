@@ -31,7 +31,16 @@ namespace citr.Controllers
             return View();
         }
 
-     
+        public IActionResult AccessDeniedPath(string returnUrl)
+        {
+            ViewBag.returnUrl = returnUrl;
+            TempData["warning"] = "У вас отсутствует доступ к данному разделу";
+            return View("Login");
+        }
+
+        
+
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -50,15 +59,31 @@ namespace citr.Controllers
                     if (null != user)
                     {
                         var userClaims = new List<Claim>
-                    {
-                        new Claim("displayName", user.DisplayName),
-                        new Claim("username", user.Username),
-                        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username)
-                    };
-                        /* if (user.IsAdmin)
-                         {
-                             userClaims.Add(new Claim(ClaimTypes.Role, "Admins"));
-                         }*/
+                        {
+                            new Claim("displayName", user.DisplayName),
+                            new Claim("username", user.Username),
+                            new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username)
+                        };
+                        Employee empl = repository.Employees.FirstOrDefault(e => e.Account.Equals(model.Username));
+                        if (empl == null)
+                        {
+                            empl = new Employee()
+                            {
+                                Account = model.Username,
+                                Email = user.Email,
+                                FullName = user.DisplayName,
+                                Position = user.Position,
+                                UserRoleID = 0
+                            };
+                            repository.SaveEmployee(empl);
+                        }
+                        else
+                        {
+                            if (empl.UserRoleID == 1)
+                            {
+                                userClaims.Add(new Claim(ClaimTypes.Role, "Admins"));
+                            }
+                        }
                         var principal = new ClaimsPrincipal(new ClaimsIdentity(userClaims, _authService.GetType().Name, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType));
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                         return Redirect(returnUrl ?? "/");

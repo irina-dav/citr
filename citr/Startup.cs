@@ -70,7 +70,9 @@ namespace citr
            .AddCookie(options =>
            {
                options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+               options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/AccessDeniedPath");
            });
+
 
             services.AddScoped<ILdapService, LdapService>();
 

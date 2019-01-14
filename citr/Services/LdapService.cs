@@ -53,7 +53,7 @@ namespace citr.Services
                 config.SearchBase,
                 LdapConnection.SCOPE_SUB,
                 searchFilter,
-                new[] { MemberOfAttribute, DisplayNameAttribute, SAMAccountNameAttribute },
+                new[] { MemberOfAttribute, DisplayNameAttribute, SAMAccountNameAttribute, TitleAttribute, MailAttribute },
                 false
             );
 
@@ -67,9 +67,11 @@ namespace citr.Services
                     {
                         return new AppUser
                         {
-                            DisplayName = user.getAttribute(DisplayNameAttribute).StringValue,
+                            DisplayName = user.getAttribute(DisplayNameAttribute)?.StringValue ?? "",
                             Username = user.getAttribute(SAMAccountNameAttribute).StringValue,
-                            IsAdmin = user.getAttribute(MemberOfAttribute).StringValueArray.Contains(config.AdminCn)
+                            Email = user.getAttribute(MailAttribute)?.StringValue ?? "",
+                            Position = user.getAttribute(TitleAttribute)?.StringValue ?? ""
+                            //IsAdmin = user.getAttribute(MemberOfAttribute).StringValueArray.Contains(config.AdminCn)
                         };
                     }
                 }

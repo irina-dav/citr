@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using citr.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using citr.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace citr.Controllers
 {
+    [Authorize(Roles = "Admins")]
     public class EmployeeController : Controller
     {
         private IEmployeeRepository repository;
