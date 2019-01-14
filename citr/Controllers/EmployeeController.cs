@@ -4,15 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using citr.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using citr.Models.ViewModels;
 
 namespace citr.Controllers
 {
     public class EmployeeController : Controller
     {
         private IEmployeeRepository repository;
+        private ApplicationDbContext db;
 
-        public EmployeeController(IEmployeeRepository repo)
+        public EmployeeController(IEmployeeRepository repo, ApplicationDbContext db)
         {
+            this.db = db;
             repository = repo;
         }
 
@@ -28,17 +32,40 @@ namespace citr.Controllers
 
         public ViewResult Edit(int employeeId)
         {
-            Employee empl = repository.Employees.FirstOrDefault(p => p.EmployeeID == employeeId);            
-            return View(empl);
+            Employee empl = repository.Employees.FirstOrDefault(p => p.EmployeeID == employeeId);
+            IEnumerable<SelectListItem> items = db.UserRole.Select(r => new SelectListItem
+            {
+                Value = r.ID.ToString(),
+                Text = r.Name
+
+            });
+            EmployeeViewModel model = new EmployeeViewModel(empl);
+            model.Roles = items;
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult Edit(Employee model)
+        public IActionResult Edit(EmployeeViewModel model)
         {
             if (ModelState.IsValid)
             {
-                string mess = $"Сотрудник {model.FullName} был сохранён";
-                repository.SaveEmployee(model);
+
+                Employee empl;
+                if (model.EmployeeID == 0)
+                {
+                    empl = new Employee();
+                }
+                else
+                {
+                    empl = repository.Employees.First(p => p.EmployeeID == model.EmployeeID);
+                }
+                empl.Account = model.Account;
+                empl.Email = model.Email;
+                empl.FullName = model.FullName;
+                empl.Position = model.Position;
+                empl.UserRoleID = model.UserRoleID;
+                repository.SaveEmployee(empl);
+                string mess = $"Сотрудник <b>{model.FullName}</b> был сохранён";
                 TempData["message"] = mess;
                 return RedirectToAction("List");
             }
@@ -50,7 +77,7 @@ namespace citr.Controllers
 
         public ViewResult Create()
         {            
-            return View("Edit", new Employee());
+            return View("Edit", new EmployeeViewModel());
         }
 
         [HttpPost]

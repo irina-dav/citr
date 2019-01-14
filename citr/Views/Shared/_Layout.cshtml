@@ -29,7 +29,7 @@
                 theme: "bootstrap"
             });          
         });        
-       
+        $.fn.select2.defaults.set("theme", "bootstrap");
     </script>
     @RenderSection("head", false)
     <title>Request Access</title>
@@ -40,7 +40,7 @@
     <div class="m-1 p-1">
         @if (TempData["message"] != null)
         {
-            <div class="alert alert-success">@TempData["message"]</div>
+            <div class="alert alert-success">@Html.Raw(@TempData["message"])</div>
         }
         @RenderBody()
     </div>

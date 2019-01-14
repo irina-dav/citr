@@ -24,6 +24,8 @@ namespace citr.Models
 
         public DbSet<HistoryRow> History { get; set; }
 
+        public DbSet<UserRole> UserRole { get; set; }
+
         //public DbSet<EmployeeAccess> EmployeeAccess { get; set; }
 
         //public DbSet<ResourceAccess> ResourceAccess { get; set; }

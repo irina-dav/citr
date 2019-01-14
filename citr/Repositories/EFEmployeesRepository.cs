@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace citr.Models
 {
@@ -15,7 +16,7 @@ namespace citr.Models
         }
 
         public IEnumerable<Employee> Employees => 
-            context.Employees;
+            context.Employees.Include(e => e.UserRole);
 
         public Employee DeleteEmployee(int employeeId)
         {

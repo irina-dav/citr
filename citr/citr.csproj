@@ -443,4 +443,6 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties Logs_4log-20190114_x0020__1json__JSONSchema="seri" /></VisualStudio></ProjectExtensions>
+
 </Project>

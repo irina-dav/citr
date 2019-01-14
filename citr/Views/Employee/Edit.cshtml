@@ -1,4 +1,4 @@
-﻿@model Employee
+﻿@model EmployeeViewModel
 @{
     ViewBag.Title = "Редактирование информации о сотруднике";
     Layout = "_Layout";
@@ -13,32 +13,37 @@
         <form asp-action="Edit" method="post" novalidate>
             <input type="hidden" asp-for="EmployeeID" />
             <div class="form-group">
-                <label asp-for="FullName"></label>
+                <label asp-for="FullName" class="font-weight-bold"></label>
                 <div><span asp-validation-for="FullName" class="text-danger"></span></div>
-                <input asp-for="FullName" class="form-control" />
+                <input asp-for="FullName" class="form-control form-control-sm" />
             </div>
             <div class="form-group">
-                <label asp-for="Position"></label>
+                <label asp-for="Position" class="font-weight-bold"></label>
                 <div><span asp-validation-for="Position" class="text-danger"></span></div>
-                <input asp-for="Position" class="form-control" />
+                <input asp-for="Position" class="form-control form-control-sm" />
             </div>
             <div class="form-group">
-                <label asp-for="Account"></label>
+                <label asp-for="Account" class="font-weight-bold"></label>
                 <div><span asp-validation-for="Account" class="text-danger"></span></div>
-                <input asp-for="Account" class="form-control" />
+                <input asp-for="Account" class="form-control form-control-sm" />
             </div>
             <div class="form-group">
-                <label asp-for="Email"></label>
+                <label asp-for="Email" class="font-weight-bold"></label>
                 <div><span asp-validation-for="Email" class="text-danger"></span></div>
-                <input asp-for="Email" class="form-control" type="email"/>
+                <input asp-for="Email" class="form-control form-control-sm" type="email" />
+            </div>
+            <div class="form-group">
+                <label asp-for="UserRoleID" class="font-weight-bold"></label>
+                <div><span asp-validation-for="UserRoleID" class="text-danger"></span></div>
+                <select asp-for="UserRoleID" id="selectEmployee" class="form-control select2-sm js-example-basic-single select2-single" asp-items="@Model.Roles"></select>
             </div>
             <div class="text-center">
-                <button class="btn btn-primary" type="submit">Сохранить</button>
-                <a asp-action="List" class="btn btn-secondary">Отмена</a>
+                <button class="btn btn-outline-primary rounded-0" type="submit">Сохранить</button>
+                <a asp-action="List" class="btn btn-outline-secondary rounded-0">Отмена</a>
             </div>
         </form>
     </div>
     <div class="card-footer text-muted">
         ...
-    </div>    
+    </div>
 </div>

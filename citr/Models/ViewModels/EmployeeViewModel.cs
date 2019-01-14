@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace citr.Models
+namespace citr.Models.ViewModels
 {
-    public class Employee
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public class EmployeeViewModel
+    {      
         public int EmployeeID { get; set; }
 
         [Required(ErrorMessage = "Укажите ФИО сотрудника")]
@@ -29,7 +28,24 @@ namespace citr.Models
         [EmailAddress(ErrorMessage = "Укажите email в корректном формате")]
         public string Email { get; set; }
 
+        [Required(ErrorMessage = "Укажите роль доступа сотрудника")]
+        [Display(Name = "Роль доступа")]
         public int UserRoleID { get; set; }
-        public virtual UserRole UserRole { get; set; }
+
+        public IEnumerable<SelectListItem> Roles { get; set; }
+
+        public EmployeeViewModel()
+        {
+        }
+
+        public EmployeeViewModel(Employee empl)
+        {
+            this.Account = empl.Account;
+            this.Email = empl.Email;
+            this.EmployeeID = empl.EmployeeID;
+            this.FullName = empl.FullName;
+            this.Position = empl.Position;
+            this.UserRoleID = empl.UserRoleID;             
+        }
     }
 }
