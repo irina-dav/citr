@@ -9,7 +9,8 @@ namespace citr.Models.ViewModels
     {
         public Employee Recipient { get; set; }
         public Request Request { get; set; }
-        public IEnumerable<Resource> Resources { get; set; }
+        public List<Resource> Resources { get; set; }
         public string Url { get; set; }
+        public List<RequestDetail> Details { get; set; }
     }
 }

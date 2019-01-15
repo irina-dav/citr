@@ -18,13 +18,18 @@ namespace citr.Models
         public IEnumerable<Request> Requests =>
             context.Requests
             .Include(r => r.History)
+            .Include(r => r.Author)
             .Include(r => r.Details)
                 .ThenInclude(d => d.Resource)
                 .ThenInclude(r => r.Category)
             .Include(r => r.Details)
                 .ThenInclude(d => d.Role)
             .Include(d => d.Details)
-                .ThenInclude(d => d.EmployeeAccess);
+                .ThenInclude(d => d.EmployeeAccess)
+             .Include(r => r.Details)
+                .ThenInclude(d => d.ResourceOwner);
+                
+
         //.Include(r => r.EmployeeAccesses)
         //.ThenInclude(r => r.Employee);
 

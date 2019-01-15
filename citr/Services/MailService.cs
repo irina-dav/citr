@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace citr.Services
 {
     public interface IMailService
     {
-        Task SendEmailAsync(string email, string subject, string message);
+        Task SendEmailAsync(string from, string to, string subject, string message);
     }
 
     public class MailService : IMailService
@@ -22,7 +23,8 @@ namespace citr.Services
             config = cfg.Value;           
         }
 
-        public async Task SendEmailAsync(string email, string subject, string message)
+
+        public async Task SendEmailAsync(string from, string to, string subject, string message)
         {
             var emailMessage = new MimeMessage()
             {
@@ -33,8 +35,10 @@ namespace citr.Services
                 }
             };
 
-            emailMessage.From.Add(new MailboxAddress(email));
-            emailMessage.To.Add(new MailboxAddress(email));
+             emailMessage.From.Add(new MailboxAddress(from));
+            // emailMessage.To.Add(new MailboxAddress(from));
+             emailMessage.From.Add(new MailboxAddress("i.davydenko@pharmasyntez.com"));
+             emailMessage.To.Add(new MailboxAddress("i.davydenko@pharmasyntez.com"));
 
             using (var client = new SmtpClient())
             {
@@ -46,5 +50,6 @@ namespace citr.Services
                 await client.DisconnectAsync(true);
             }
         }
+       
     }
 }

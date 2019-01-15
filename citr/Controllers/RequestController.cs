@@ -27,6 +27,7 @@ namespace citr.Controllers
         private ILdapService ldapService;
         private readonly OTRSService otrsService;
         private readonly HistoryService historyService;
+        private readonly NotificationService notifService;
         private readonly ApplicationDbContext context;
 
         private readonly ILogger logger;
@@ -41,7 +42,8 @@ namespace citr.Controllers
             HistoryService historySrv,
             ApplicationDbContext ctx,
             OTRSService otrsServ,
-            ILogger<RequestController> log)
+            ILogger<RequestController> log,
+            NotificationService notifService)
         {
             employeeesRepository = employeeRepo;
             resourcesRepository = resourceRepo;
@@ -53,6 +55,7 @@ namespace citr.Controllers
             context = ctx;
             logger = log;
             otrsService = otrsServ;
+            this.notifService = notifService;
         }
 
         public ViewResult ListAll()
@@ -119,8 +122,9 @@ namespace citr.Controllers
             return View("Edit", newReq);
         }
 
-        //[Route("Request/Approve", Order = 1)]
-        //[Route("Request/Edit", Order = 0)]        
+        [Route("Request/Approve/{requestId}", Order = 1)]
+        [Route("Request/Edit/{requestId}", Order = 0)]
+        [Route("Request/Open/{requestId}", Order = 0)]
         public IActionResult Edit(int requestId)
         {
             Request req = repository.Requests.FirstOrDefault(p => p.RequestID == requestId);
@@ -133,17 +137,6 @@ namespace citr.Controllers
                     rd.CanApprove = (req.State == RequestState.Approving && rd.Resource.OwnerEmployeeID == currentEmployeeId);
                     rd.CanDelete = req.State == RequestState.New;
                 }
-
-                /*foreach (ResourceAccess ra in req.ResourceAccesses)
-                {
-                    ra.CanApprove = (req.State == RequestState.Approving && ra.Resource.OwnerEmployeeID == currentEmployeeId);
-                    ra.CanDelete = req.State == RequestState.New;
-                }
-                foreach (EmployeeAccess ea in req.EmployeeAccesses)
-                {
-                    ea.CanDelete = (req.State == RequestState.New) && req.AuthorID == currentEmployeeId;
-
-                }*/
                 return View(req);
             }
             else
@@ -220,7 +213,7 @@ namespace citr.Controllers
         }
 
         [HttpPost]
-        public IActionResult Send(Request model)        
+        public async Task<IActionResult> SendToApprove(Request model)        
         {
             Request req = SaveRequstPost(model);
             if (req == null)
@@ -231,68 +224,44 @@ namespace citr.Controllers
             {
                 req.State = RequestState.Approving;
                 repository.SaveRequest(req);
-                string mess = $"Заявка {req.RequestID} была отправлена на согласование";                
+                string mess = $"Заявка <b>{req.RequestID}</b> была отправлена на согласование";                
                 historyService.AddRow(req, mess);
-                TempData["message"] = mess;
-                foreach (Employee empl in req.Details.Select(d => d.Resource.OwnerEmployee).Distinct())
-                {
-                    SendEmail(req, empl);
-                }
+                TempData["message"] = mess;               
+                await notifService.SendToApprovers(req);                
                 return RedirectToAction("ListMyRequests");
             }
         }
 
-
-        public async void SendEmail(Request req, Employee recipient)
+        public async Task<IActionResult> TestAsync()
         {
-            EmailViewModel model = new EmailViewModel()
-            {
-                Recipient = recipient,
-                Request = req,
-                Resources = req.Details.Select(d => d.Resource).Where(r => r.OwnerEmployeeID == recipient.EmployeeID),
-                Url = this.AbsoluteAction("Approve", "Request", new { requestId = req.RequestID })
-            };
-            var viewHtml = await this.RenderViewAsync("Approve", model, true);
-            System.IO.File.WriteAllText(@"d:/temp/test.html", viewHtml);
-            
-            await mailService.SendEmailAsync("i.davydenko@pharmasyntez.com", $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
-        }
-
-
-        public IActionResult Test()
-        {
-            mailService.SendEmailAsync("i.davydenko@pharmasyntez.com",
-               $"test",
-               "Согласуйте, пожалуйста заявку");
+            await notifService.SendToOTRSAsync(repository.Requests.FirstOrDefault(r => r.RequestID == 6));
             return RedirectToAction("List");
-
         }
-
 
         [HttpPost]
-        public IActionResult EndApprove(Request model)
+        public async Task<IActionResult> EndApprove(Request model)
         {
             Request req = SaveRequstPost(model);
             string mess = "";
             if (req.Details.Any(d => d.ApprovingResult == ResourceApprovingResult.None))
             {
-                mess = $"Согласование заявки {req.RequestID} завершено";              
+                mess = $"Результаты согласования <b>{req.RequestID}</b> сохранены";               
             }
             else
             {
                 if (!req.Details.Any(d => d.ApprovingResult == ResourceApprovingResult.Approved))
                 {
                     req.State = RequestState.Canceled;
-                    mess = $"Заявке {req.RequestID} было отказано в согласовании";
+                    mess = $"Заявке <b>{req.RequestID}</b> было отказано в согласовании";
                 }
                 else
                 {
                     req.State = RequestState.Approved;
-                    mess = $"Заявка {req.RequestID} согласована";
+                    mess = $"Заявка <b>{req.RequestID}</b> согласована всеми участниками";
+                    await notifService.SendToOTRSAsync(req);
                 }
                 repository.SaveRequest(req);
-            }
-               
+            }               
             historyService.AddRow(req, mess);
             TempData["message"] = mess;
             return RedirectToAction("ListToApprove");         

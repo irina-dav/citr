@@ -78,7 +78,8 @@ namespace citr
 
             services.AddScoped<HistoryService>();
 
-
+            services.AddScoped<IViewRenderService, ViewRenderService>();
+            services.AddScoped<NotificationService>();
 
             services.AddMvc();
             services.AddHttpContextAccessor();
@@ -104,6 +105,9 @@ namespace citr
                 routes.MapRoute(
                     name: "main",
                     template: "{controller=Request}/{action=ListMyRequests}");
+                routes.MapRoute(
+                    name: "request",
+                    template: "{controller=Request}/{action}/{requestId?}");
             });
         }
     }

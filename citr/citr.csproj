@@ -36,7 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Email\" />
     <Folder Include="wwwroot\lib\datatables\" />
     <Folder Include="wwwroot\lib\select2\" />
   </ItemGroup>

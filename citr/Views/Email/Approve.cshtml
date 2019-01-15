@@ -53,8 +53,18 @@
                             <li>@ra.Name</li>
                         }
                     </ul>
+                    для сотрудников:
+                    <ol>
+                        @foreach (RequestDetail detail in Model.Details)
+                        {
+                            <li>@detail.EmployeeAccess.FullName - @detail.Role.Name</li>
+                        }
+                    </ol>
                 </div>
-                <p>Для согласования перейдите по ссылке: <a href="@Model.Url">Заявка №@Model.Request.RequestID</a></p>               
+                <p>
+                    Для согласования перейдите по ссылке:
+                    <a href="@Model.Url">@Model.Request.RequestID</a>
+                </p>
                 <p class='comment'>Отвечать на данное письмо не требуется</p>
             </td>
         </tr>
