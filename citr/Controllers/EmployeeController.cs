@@ -92,5 +92,16 @@ namespace citr.Controllers
             }
             return RedirectToAction("List");
         }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetEmployeesJson(string search)
+        {
+            if (search == null)
+                search = "";
+            var results = repository.Employees.Where(em => em.FullName.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+                .Select(em => new { id = em.EmployeeID, text = em.FullName });            
+            return Json(results);            
+        }
     }
 }

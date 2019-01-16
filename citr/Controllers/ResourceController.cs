@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace citr.Controllers
 {
-    [Authorize(Roles = "Admins")]
     public class ResourceController : Controller
     {
         private IResourceRepository repository;
@@ -40,11 +39,13 @@ namespace citr.Controllers
             historyService = historySrv;
         }
 
+        [Authorize(Roles = "Admins")]
         public ViewResult List()
         {
             return View(repository.Resources);
         }
 
+        [Authorize(Roles = "Admins")]
         public ViewResult Edit(int resourceId)
         {
             Resource res = repository.Resources.FirstOrDefault(p => p.ResourceID == resourceId);           
@@ -52,6 +53,7 @@ namespace citr.Controllers
             return View(res);
         }
 
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         public IActionResult Edit(Resource model)
         {
@@ -77,13 +79,15 @@ namespace citr.Controllers
                 return View(model);
             }
         }
-       
+
+        [Authorize(Roles = "Admins")]
         public ViewResult Create()
         {
             ViewBag.Json = categoryTree.GetCategoriesJson();
             return View("Edit", new Resource());
         }
 
+        [Authorize(Roles = "Admins")]
         public ViewResult Copy(int sourceId)
         {            
             Resource res = repository.Resources.FirstOrDefault(p => p.ResourceID == sourceId);
@@ -99,6 +103,7 @@ namespace citr.Controllers
             return View("Edit", newRes);
         }
 
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         public IActionResult Delete(int resourceId)
         {
@@ -110,6 +115,7 @@ namespace citr.Controllers
             return RedirectToAction("List");
         }
 
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         public ActionResult AddRole(int index, string roleName)
         {          
@@ -121,6 +127,7 @@ namespace citr.Controllers
             return PartialView("~/Views/Resource/Role.cshtml", newObj);
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult CheckRoleReferences(int roleId)
         {
@@ -131,6 +138,22 @@ namespace citr.Controllers
                 return Json(reqs.Select(r => r.RequestID));
             }
             return Json(new EmptyResult());
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetResourcesJson(string search)
+        {
+            if (search == null)
+                search = "";
+            JsonResult res = Json(new EmptyResult());
+            List<object> results = new List<object>();
+            foreach (var g in repository.Resources.Where(r => r.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).GroupBy(r => r.Category))
+            {
+                results.Add(new { text = g.Key.Name, children = g.ToList().Select(r => new { id = r.ResourceID, text = r.Name }) });
+            }
+            return Json(results);
         }
     }
 }

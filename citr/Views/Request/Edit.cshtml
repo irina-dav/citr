@@ -7,11 +7,6 @@
 @{
     var empls = EmployeeRepository.Employees;
 }
-@inject IResourceRepository ResourceRepository
-@{
-    var resources = ResourceRepository.Resources;
-}
-@inject ILdapService LdapService
 <div class="card text-left w-75 mx-auto">
     <form method="post" novalidate>
         <div class="card-header">
@@ -51,14 +46,14 @@
                         <label class="col-3 col-form-label">1. Выберите сотрудника</label>
                         <div class="col-9">
                             <select id="selectEmployee" class="form-control js-example-basic-single select2-single" asp-items="@(new SelectList(empls, "EmployeeID", "FullName"))">
-                                <option value="" disabled selected>Cотрудник</option>
+                                
                             </select>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-3 col-form-label">2. Выберите ресурс</label>
                         <div class="col-9">
-                            <select id="selectResource" class="form-control js-example-basic-single" asp-items="@(new SelectList(resources, "ResourceID", "Name"))">
+                            <select id="selectResource" class="form-control js-example-basic-single js-data-example-ajax">
                                 <option value="" disabled selected>Ресурс</option>
                             </select>
                         </div>
@@ -133,6 +128,28 @@
 
 </div>
 <script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#selectEmployee').val('@Html.Raw(@ViewBag.CurrentEmployeeId)');
+        $('#selectEmployee').trigger('change');
+
+        $('.js-data-example-ajax').select2({
+            ajax: {
+                url: '@Url.Action("GetResourcesJson", "Resource")',
+                type: 'GET',
+                function(params) {
+                    var query = {
+                        search: params.term
+                    }
+                    return query;
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
 
     $('#selectResource').change(function () {
         var selectedResource = $("#selectResource").val();
@@ -156,14 +173,12 @@
                 }
             });
 
-
-
     $('#addDetail').click(function () {
         var nextIndex = $("#tblDetails tbody tr").length;
         var resId = $("#selectResource").find("option:selected").val();
         var emplId = $("#selectEmployee").find("option:selected").val();
         var roleId = $("#selectRole").find("option:selected").val();
-        if (resId.length == 0) {
+        if (resId.length == 0 || emplId.length == 0 || roleId.length == 0) {
             $('#addDetail').popover('show');
         } else {
             $.ajax({
@@ -186,12 +201,11 @@
         $(this).prev('input').val('true');
         });
 
-    $(document).ready(function () {
-        var state = $("#State").val();
-        if (state == 'Approving') {
-            $(':input[type=submit][value!="Завершить"]').attr('hidden', 'hidden');
-            $('.input-group').attr('hidden', 'hidden');
-        }
-    });
-    $.fn.select2.defaults.set("theme", "bootstrap");
+    var state = $("#State").val();
+    if (state == 'Approving') {
+        $(':input[type=submit][value!="Завершить"]').attr('hidden', 'hidden');
+        $('.input-group').attr('hidden', 'hidden');
+    }
+
+});
 </script>

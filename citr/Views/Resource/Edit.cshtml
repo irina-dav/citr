@@ -30,7 +30,7 @@
             <div class="form-group">
                 <label asp-for="OwnerEmployeeID" class="font-weight-bold"></label>
                 <div><span asp-validation-for="OwnerEmployeeID" class="text-danger"></span></div>
-                <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single" asp-items="@(new SelectList(empls, "EmployeeID", "FullName"))">
+                <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single js-data-example-ajax">
                     <option disabled selected value="">Выберите владельца</option>
                 </select>
             </div>
@@ -96,51 +96,74 @@
 </div>
 
 <script type="text/javascript">
-    $('#addRole').click(function () {
-        var nextIndex = $("#tblRoles tbody tr").length;
-        var newRoleName = $("#newRoleName").val();
-        if (newRoleName.length == 0) {
-            $('#newRoleName').popover('show');
-        } else {
-            $.ajax({
-                url: '@Url.Action("AddRole", "Resource")',
-                type: 'POST',
-                data: { index: nextIndex, roleName: newRoleName},
-                success: function (results) {
-                    $("#tblRoles tbody").append(results);
-                }
-                });
-                }
-                });
+    $(document).ready(function () {
 
-    $('#addaddRoleDetail').mouseleave(function () {
-                $(this).popover('hide');
-                });
+        $('.js-data-example-ajax').select2({
+            ajax: {
+                url: '@Url.Action("GetEmployeesJson", "Employee")',
+                type: 'GET',
+                data: function (params) {
+                    var query = {
+                        search: params.term                       
+                    }
 
-    $("#tblRoles").on("click", ".delete-role", function () {
-        var btn = $(this);
-        roleId = $(this).closest('tr').find('.role-id').val();
-        roleName = $(this).closest('tr').find('.role-name').val();
-        $.getJSON('@Url.Action("CheckRoleReferences", "Resource")', { roleId: roleId }, function (reqs) {
-            if (reqs != null && !jQuery.isEmptyObject(reqs)) {
-                $.alert({
-                    boxWidth: '500px',
-                    useBootstrap: false,
-                    title: 'Удаление роли невозможно',
-                    content: "Роль <b>" + roleName + "</b> не может быть удалена, т.к. используется в следующих заявках на доступы: " + reqs,
-                    theme: 'bootstrap',
-                });    
-            }
-            else {
-                btn.closest('tr').hide();
-                btn.prev('input').val('true');
+                    // Query parameters will be ?search=[term]&type=public
+                    return query;
+                },
+                processResults: function(data) {
+                    // Tranforms the top-level key of the response object from 'items' to 'results'
+                    return {
+                        results: data
+                    };
+                }
             }
         });
-    });
 
-    $("#tblRoles").on("click", ".edit-role", function () {
-        $(this).closest('tr').find('.role-name').prop('readonly', false);
-    });
+        $('#addRole').click(function () {
+            var nextIndex = $("#tblRoles tbody tr").length;
+            var newRoleName = $("#newRoleName").val();
+            if (newRoleName.length == 0) {
+                $('#newRoleName').popover('show');
+            } else {
+                $.ajax({
+                    url: '@Url.Action("AddRole", "Resource")',
+                    type: 'POST',
+                    data: { index: nextIndex, roleName: newRoleName },
+                    success: function (results) {
+                        $("#tblRoles tbody").append(results);
+                    }
+                });
+            }
+        });
 
-      
+        $('#addaddRoleDetail').mouseleave(function () {
+            $(this).popover('hide');
+        });
+
+        $("#tblRoles").on("click", ".delete-role", function () {
+            var btn = $(this);
+            roleId = $(this).closest('tr').find('.role-id').val();
+            roleName = $(this).closest('tr').find('.role-name').val();
+            $.getJSON('@Url.Action("CheckRoleReferences", "Resource")', { roleId: roleId }, function (reqs) {
+                if (reqs != null && !jQuery.isEmptyObject(reqs)) {
+                    $.alert({
+                        boxWidth: '500px',
+                        useBootstrap: false,
+                        title: 'Удаление роли невозможно',
+                        content: "Роль <b>" + roleName + "</b> не может быть удалена, т.к. используется в следующих заявках на доступы: " + reqs,
+                        theme: 'bootstrap',
+                    });
+                }
+                else {
+                    btn.closest('tr').hide();
+                    btn.prev('input').val('true');
+                }
+            });
+        });
+
+        $("#tblRoles").on("click", ".edit-role", function () {
+            $(this).closest('tr').find('.role-name').prop('readonly', false);
+        });
+
+    });
 </script>

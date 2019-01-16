@@ -83,6 +83,10 @@ namespace citr.Controllers
                             {
                                 userClaims.Add(new Claim(ClaimTypes.Role, "Admins"));
                             }
+                            else
+                            {
+                                userClaims.Add(new Claim(ClaimTypes.Role, "Users"));
+                            }
                         }
                         var principal = new ClaimsPrincipal(new ClaimsIdentity(userClaims, _authService.GetType().Name, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType));
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);

@@ -18,29 +18,32 @@
                     <a class="dropdown-item small" asp-action="ListAll" asp-controller="Request">Все заявки</a>
                 </div>
             </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="MenuResources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Информационные ресурсы
-                </a>
-                <div class="dropdown-menu small" aria-labelledby="MenuResources">
-                    <a class="dropdown-item small" asp-action="Create" asp-controller="Resource">Добавить новый ресурс</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item small" asp-action="List" asp-controller="Resource">Список ресурсов</a>
-                    <a class="dropdown-item small" asp-action="Index" asp-controller="ResourceCategory">Категории ресурсов</a>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="MenuResources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Сотрудники
-                </a>
-                <div class="dropdown-menu" aria-labelledby="MenuResources">
-                    <a class="dropdown-item small" asp-action="Create" asp-controller="Employee">Добавить сотрудника</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item small" asp-action="PopulateEmployees" asp-controller="Admin">Загрузить из Active Directory</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item small" asp-action="List" asp-controller="Employee">Список сотрудников</a>
-                </div>
-            </li>
+            @if (User.IsInRole("Admins"))
+            { 
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="MenuResources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Информационные ресурсы
+                    </a>
+                    <div class="dropdown-menu small" aria-labelledby="MenuResources">
+                        <a class="dropdown-item small" asp-action="Create" asp-controller="Resource">Добавить новый ресурс</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item small" asp-action="List" asp-controller="Resource">Список ресурсов</a>
+                        <a class="dropdown-item small" asp-action="Index" asp-controller="ResourceCategory">Категории ресурсов</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="MenuResources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Сотрудники
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="MenuResources">
+                        <a class="dropdown-item small" asp-action="Create" asp-controller="Employee">Добавить сотрудника</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item small" asp-action="PopulateEmployees" asp-controller="Admin">Загрузить из Active Directory</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item small" asp-action="List" asp-controller="Employee">Список сотрудников</a>
+                    </div>
+                </li>
+            }
         </ul>
     </div>
 

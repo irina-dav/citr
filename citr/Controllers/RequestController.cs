@@ -90,6 +90,7 @@ namespace citr.Controllers
 
         public IActionResult Create()
         {
+            ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;
             return View("Edit", new Request()
             {
                 State = RequestState.New,      
@@ -118,18 +119,20 @@ namespace citr.Controllers
                     RoleID = d.RoleID,    
                     Role = d.Role
                 }))
-            };            
+            };
+            ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;
             return View("Edit", newReq);
         }
 
-        [Route("Request/Approve/{requestId}", Order = 1)]
-        [Route("Request/Edit/{requestId}", Order = 0)]
-        [Route("Request/Open/{requestId}", Order = 0)]
-        public IActionResult Edit(int requestId)
+        //[Route("Request/Approve/{requestId}", Order = 1)]
+        //[Route("Request/Edit/{requestId}", Order = 0)]
+        //[Route("Request/Open/{requestId}", Order = 0)]
+        public IActionResult Open(int requestId)
         {
             Request req = repository.Requests.FirstOrDefault(p => p.RequestID == requestId);
             Employee currentEmployee = ldapService.GetUserEmployee();
             int currentEmployeeId = currentEmployee.EmployeeID;
+            ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;
             if (req.AuthorID == currentEmployee.EmployeeID || req.Details.Any(ra => ra.Resource.OwnerEmployeeID == currentEmployeeId))
             {
                 foreach (RequestDetail rd in req.Details)
@@ -137,7 +140,7 @@ namespace citr.Controllers
                     rd.CanApprove = (req.State == RequestState.Approving && rd.Resource.OwnerEmployeeID == currentEmployeeId);
                     rd.CanDelete = req.State == RequestState.New;
                 }
-                return View(req);
+                return View("Edit", req);
             }
             else
                 return View("~/Views/Errors/AccessDenied.cshtml");

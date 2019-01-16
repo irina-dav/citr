@@ -65,3 +65,7 @@
 .btn-list-action {
     width: 85px !important;
 }
+
+li .select2-results__option {
+    margin-left: 30px !important;
+}
