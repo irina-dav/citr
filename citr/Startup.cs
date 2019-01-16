@@ -104,7 +104,7 @@ namespace citr
             {
                 routes.MapRoute(
                     name: "main",
-                    template: "{controller=Request}/{action=ListMyRequests}");
+                    template: "{controller=Home}/{action=Index}");
                 routes.MapRoute(
                     name: "request",
                     template: "{controller=Request}/{action}/{requestId?}");

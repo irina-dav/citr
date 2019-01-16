@@ -81,7 +81,7 @@ namespace citr.Controllers
             Employee currEmployee = ldapService.GetUserEmployee();
             ViewBag.Title = "Заявки мне на согласование";
             return View("List", repository.Requests
-                .Where(r => r.State == RequestState.Approving && r.Details.Any(d => d.Resource.OwnerEmployeeID == currEmployee.EmployeeID)));
+                .Where(r => r.State == RequestState.Approving && r.Details.Any(d => d.ResourceOwnerID == currEmployee.EmployeeID)));
         }
 
         public IActionResult Create()
@@ -130,7 +130,7 @@ namespace citr.Controllers
             {
                 foreach (RequestDetail rd in req.Details)
                 {
-                    rd.CanApprove = (req.State == RequestState.Approving && rd.Resource.OwnerEmployeeID == currentEmployeeId);
+                    rd.CanApprove = (req.State == RequestState.Approving && rd.ResourceOwnerID == currentEmployeeId);
                     rd.CanDelete = req.State == RequestState.New;
                 }
                 return View("Edit", req);

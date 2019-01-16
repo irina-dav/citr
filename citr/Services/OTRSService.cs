@@ -31,7 +31,7 @@ namespace citr.Services
         }
 
         public void UpdateTickets()
-        {   /*      
+        {         
             try
             {                    
                 var approvedRequests = requestRepository.Requests.Where(r => r.State == RequestState.Approved);
@@ -59,7 +59,7 @@ namespace citr.Services
             catch (Exception ex)
             {
                 logger.LogError(ex.ToString());
-            }*/
+            }
         }
 
         private string SearchTicket(string number, MySqlConnection connection)

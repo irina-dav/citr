@@ -5,14 +5,42 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using citr.Models;
+using citr.Services;
+using citr.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace citr.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ILdapService ldapService;
+        private readonly IRequestRepository requestRepository;
+
+        public HomeController(ILdapService ldapService, IRequestRepository requestRepository)
+        {
+            this.ldapService = ldapService;
+            this.requestRepository = requestRepository;
+        }
+
+        [Authorize]
         public IActionResult Index()
         {
-            return View();
+            int currEmployeeId = ldapService.GetUserEmployee().EmployeeID;
+            if (requestRepository.Requests
+                .Any(r => r.State == RequestState.Approving && 
+                    r.Details.Any(d => d.ResourceOwnerID == currEmployeeId && d.ApprovingResult == ResourceApprovingResult.None)))
+            {
+                return RedirectToAction("ListToApprove", "Request");
+            }
+            else if (User.IsInRole("Admins"))
+            {
+                return RedirectToAction("List", "Resource");
+            }
+            else
+            {
+                return RedirectToAction("ListMyRequests", "Request");
+            }
+
         }
 
         public IActionResult About()
