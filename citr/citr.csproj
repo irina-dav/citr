@@ -49,9 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Views\Request\Edit - Copy.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Update="Views\Request\Edit.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

@@ -16,10 +16,10 @@ namespace citr.Controllers
 {
     public class ResourceController : Controller
     {
-        private IResourceRepository repository;
-        private IEmployeeRepository employeeesRepository;
-        private IRequestRepository requestRepository;
-        private ApplicationDbContext context;
+        private readonly IResourceRepository repository;
+        private readonly IEmployeeRepository employeeesRepository;
+        private readonly IRequestRepository requestRepository;
+        private readonly ApplicationDbContext context;
         private readonly CategoryTree categoryTree;
         private readonly HistoryService historyService;
 
@@ -60,16 +60,21 @@ namespace citr.Controllers
             var roles = model.Roles?.Where(c => !c.IsDeleted).ToList();
             if (ModelState.IsValid)
             {
-                if (model.ResourceID == 0)
+                bool isNew = model.ResourceID == 0;
+                if (isNew)
                 {
                     model.CreationDate = DateTime.Now;
                 }
                 model.ChangeDate = DateTime.Now;
                 model.Roles = roles;
-                repository.SaveResource(model);                
-                string mess = $"Ресурс {model.Name} был сохранён";
+                repository.SaveResource(model);
+                Resource res = repository.Resources.First(r => r.ResourceID.Equals(model.ResourceID));
 
-                historyService.AddRow(model, mess);
+                string mess = $"Ресурс <b>{res.Name}</b> был сохранён";
+                if (isNew)
+                    mess = $"Ресурс <b>{res.Name}</b> был создан";
+
+                historyService.AddRow(res, mess);
                 TempData["message"] = mess;
                 return RedirectToAction("List");
             }
@@ -110,7 +115,7 @@ namespace citr.Controllers
             Resource deletedResource = repository.DeleteResource(resourceId);
             if (deletedResource != null)
             {
-                TempData["message"] = $"{deletedResource.Name} был удалён";
+                TempData["message"] = $"<b>{deletedResource.Name}</b> был удалён";
             }
             return RedirectToAction("List");
         }

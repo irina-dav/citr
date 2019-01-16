@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace citr.Services
@@ -29,12 +30,14 @@ namespace citr.Services
             if (obj.History == null)
                 obj.History = new List<HistoryRow>();
 
-             obj.History.Add(new HistoryRow()
+            string historyText = Regex.Replace(text, "<.*?>", String.Empty);
+
+            obj.History.Add(new HistoryRow()
              {
                  AuthorEmployeeID = ldapService.GetUserEmployee().EmployeeID,
                  Date = DateTime.Now,
-                 Text = text
-             });   
+                 Text = historyText
+            });   
             context.SaveChanges();
         }       
     }

@@ -16,7 +16,12 @@ namespace citr.Models
         }
 
         public IEnumerable<Resource> Resources 
-            => context.Resources.Include(r => r.OwnerEmployee).Include(r => r.Category).Include(r => r.History).Include(r => r.Roles);
+            => context.Resources
+                .Include(r => r.OwnerEmployee)
+                .Include(r => r.Category)
+                .Include(r => r.History)
+                    .ThenInclude(h => h.AuthorEmployee)
+                .Include(r => r.Roles);
      
         public Resource DeleteResource(int resourceId)
         {

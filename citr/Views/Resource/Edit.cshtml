@@ -31,7 +31,14 @@
                 <label asp-for="OwnerEmployeeID" class="font-weight-bold"></label>
                 <div><span asp-validation-for="OwnerEmployeeID" class="text-danger"></span></div>
                 <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single js-data-example-ajax">
-                    <option disabled selected value="">Выберите владельца</option>
+                    @if (Model.OwnerEmployeeID == 0)
+                    {
+                        <option disabled selected value="">Выберите владельца</option>
+                    }
+                    else
+                    {
+                        <option selected value="@Model.OwnerEmployeeID">@Model.OwnerEmployee.FullName</option>
+                    }
                 </select>
             </div>
             <div class="form-group">
@@ -98,6 +105,8 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
+       
+
         $('.js-data-example-ajax').select2({
             ajax: {
                 url: '@Url.Action("GetEmployeesJson", "Employee")',
@@ -118,6 +127,8 @@
                 }
             }
         });
+    $('#OwnerEmployeeID').val('@Html.Raw(Model.OwnerEmployeeID)');
+        $('#OwnerEmployeeID').trigger('change');
 
         $('#addRole').click(function () {
             var nextIndex = $("#tblRoles tbody tr").length;

@@ -23,8 +23,7 @@ namespace citr.Controllers
         private IResourceRepository resourcesRepository;
         private IAccessRoleRepository roleRepository;
 
-        private IMailService mailService;
-        private ILdapService ldapService;
+        private readonly ILdapService ldapService;
         private readonly OTRSService otrsService;
         private readonly HistoryService historyService;
         private readonly NotificationService notifService;
@@ -37,7 +36,6 @@ namespace citr.Controllers
             IResourceRepository resourceRepo, 
             IRequestRepository repo, 
             IAccessRoleRepository roleRepo,
-            IMailService mailSrv, 
             ILdapService ldapSrv,
             HistoryService historySrv,
             ApplicationDbContext ctx,
@@ -49,7 +47,6 @@ namespace citr.Controllers
             resourcesRepository = resourceRepo;
             roleRepository = roleRepo;
             repository = repo;
-            mailService = mailSrv;
             ldapService = ldapSrv;
             historyService = historySrv;
             context = ctx;
@@ -74,8 +71,7 @@ namespace citr.Controllers
         {
             Employee currEmployee = ldapService.GetUserEmployee();
             ViewBag.Title = "Мои заявки";
-            var requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();
-            //requests.ForEach(r => r.TicketUrl = otrsService.GetTicketUrl(r.TicketNumber));
+            var requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();       
             return View("List", requests);
         }
 
@@ -124,9 +120,6 @@ namespace citr.Controllers
             return View("Edit", newReq);
         }
 
-        //[Route("Request/Approve/{requestId}", Order = 1)]
-        //[Route("Request/Edit/{requestId}", Order = 0)]
-        //[Route("Request/Open/{requestId}", Order = 0)]
         public IActionResult Open(int requestId)
         {
             Request req = repository.Requests.FirstOrDefault(p => p.RequestID == requestId);
@@ -158,38 +151,6 @@ namespace citr.Controllers
             {
                 return RedirectToAction("ListMyRequests");
             }
-        }
-
-        public IActionResult Cancel()
-        {
-            return Redirect(Request.Headers["Referer"].ToString());
-        }
-
-        [HttpPost]
-        public ActionResult AddEmployeeAccess(int index, string employeeId, string accessLevel)
-        {
-            int emplId = int.Parse(employeeId);
-            var newObj = new EmployeeAccess()
-            {
-                EmployeeID = emplId,
-                AccessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), accessLevel, true),
-                Employee = employeeesRepository.Employees.FirstOrDefault(e => e.EmployeeID.Equals(emplId))
-             };
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("EmployeeAccesses[{0}]", index);
-            return PartialView("~/Views/Request/AddEmployeeAccess.cshtml", newObj);
-        }
-
-        [HttpPost]
-        public ActionResult AddResource(int index, string resourceId)
-        {
-            int resId = int.Parse(resourceId);
-            var newObj = new ResourceAccess()
-            {
-                ResourceID = resId,
-                Resource = resourcesRepository.Resources.FirstOrDefault(e => e.ResourceID.Equals(resId))
-            };
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("ResourceAccesses[{0}]", index);
-            return PartialView("~/Views/Request/AddResource.cshtml", newObj);
         }
 
         [HttpPost]
@@ -298,8 +259,6 @@ namespace citr.Controllers
 
         private Request SaveRequstPost(Request model)
         {
-            //var employeeAccesses = model.EmployeeAccesses?.Where(c => !c.IsDeleted).ToList();
-            //var resourceAccesses = model.ResourceAccesses?.Where(c => !c.IsDeleted).ToList();
             var details = model.Details?.Where(c => !c.IsDeleted).ToList();
 
             if (ModelState.IsValid)
@@ -311,30 +270,23 @@ namespace citr.Controllers
                     model.CreateDate = DateTime.Now;
                     model.State = RequestState.New;
                 }        
-                string mess = "";
+               
 
-                //model.EmployeeAccesses = employeeAccesses;
-                //model.ResourceAccesses = resourceAccesses;
                 model.Details = details;
                 model.ChangeDate = DateTime.Now;
                 repository.SaveRequest(model);
                 Request req = repository.Requests.First(r => r.RequestID.Equals(model.RequestID));
+
+                string mess = $"Заявка <b>{req.RequestID}</b> был сохранeна";
                 if (isNew)
-                    mess = $"Заявка {req.RequestID} была создана";
-                else
-                    mess = $"Заявка {req.RequestID} был сохранeна";
+                    mess = $"Заявка <b>{req.RequestID}</b> была создана";
+                
                 historyService.AddRow(req, mess);
                 TempData["message"] = mess;
                 return req;
             }
             else
             {
-                /* if (employeeAccesses != null)
-                     employeeAccesses.ForEach(ea => ea.Employee = employeeesRepository.Employees.First(em => em.EmployeeID.Equals(ea.EmployeeID)));
-                 if (resourceAccesses != null)
-                     resourceAccesses.ForEach(ra => ra.Resource = resourcesRepository.Resources.First(r => r.ResourceID.Equals(ra.ResourceID)));
-                 model.EmployeeAccesses = employeeAccesses;
-                 model.ResourceAccesses = resourceAccesses;*/
                 if (details != null)
                 {
                     details.ForEach(d => d.EmployeeAccess = employeeesRepository.Employees.First(em => em.EmployeeID.Equals(d.EmployeeAccessID)));
