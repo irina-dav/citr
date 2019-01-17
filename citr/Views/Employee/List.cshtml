@@ -4,40 +4,65 @@
     ViewBag.Title = "Сотрудники";
     Layout = "_LayoutList";
 }
+@inject IEmployeeRepository EmployeeRepository
 <div class="col-md-10 col-md-offset-1">
-        <div class="panel-body">
-            <table id="list" class="table table-bordered table-striped table-sm small">
-                <thead>
-                    <tr>
-                        <th style="width: 15%">Account</th>
-                        <th style="width: 25%">Имя</th>
-                        <th style="width: 25%">Должность</th>
-                        <th style="width: 20%">Email</th>
-                        <th style="width: 15%" class="text-center">Действия</th>
-                    </tr>
-                </thead>
-                @foreach (Employee empl in Model)
-                {
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@Html.Raw(@TempData["Error"])</div>
+    }
+    <div class="panel-body">
+        <table id="list" class="table table-bordered table-striped table-sm small">
+            <thead>
+                <tr>
+                    <th style="width: 15%">Account</th>
+                    <th style="width: 25%">Имя</th>
+                    <th style="width: 25%">Должность</th>
+                    <th style="width: 20%">Email</th>
+                    <th style="width: 15%" class="text-center">Действия</th>
+                </tr>
+            </thead>
+            @foreach (Employee empl in Model)
+            {
                 <tr>
                     <td>@empl?.Account</td>
                     <td>@empl?.FullName</td>
                     <td>@empl?.Position</td>
                     <td>@empl?.Email</td>
                     <td class="text-center">
-                        <form asp-action="Delete" method="post">
-                            <a asp-action="Edit" class="btn btn-sm btn-outline-warning" asp-route-employeeId="@empl.EmployeeID">Открыть</a>
-                            <input type="hidden" name="EmployeeID" value="@empl.EmployeeID" />
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+                        <form id="actionsForm" asp-action="Delete" method="post">
+                            <a asp-action="Edit" class="btn btn-sm rounded-0 btn-list-action btn-outline-success p-0 m-0" asp-route-employeeId="@empl.EmployeeID">Открыть</a>
+                            <input type="hidden" id="EmployeeID" name="EmployeeID" value="@empl.EmployeeID" />
+                            <input type="hidden" id="FullName" name="FullName" value="@empl.FullName" />
+                            <button type="submit" class="btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0 deleteEmployee">Удалить</button>
                         </form>
                     </td>
                 </tr>
-                }
-            </table>
-        </div>
+            }
+        </table>
+    </div>
 </div>
 <script>
+
     var oTable = $('#list').DataTable();
     listSettings.order = [[1, 'asc']];
     oTable.destroy();
     $("#list").DataTable(listSettings);
+         
+    $('.deleteEmployee').click(function (e) {
+        var emplFullName = $(this).prev('input').val();    
+        e.preventDefault();
+        $.confirm({
+            title: 'Удаление сотрудника',
+            content: 'Вы действительно хотите удалить сотрудника <b>' + emplFullName + '</b>?<br>Удалить будет возможно только сотрудника, на которго нет ссылок.',
+            boxWidth: '500px',
+            useBootstrap: false,
+            buttons: {
+                Удалить: function () {
+                    $('#actionsForm').submit();
+                },
+                Отмена: function () {
+                },
+            }
+        });            
+    });
 </script>

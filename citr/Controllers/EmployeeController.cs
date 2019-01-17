@@ -7,6 +7,7 @@ using citr.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using citr.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace citr.Controllers
 {
@@ -85,12 +86,30 @@ namespace citr.Controllers
         [HttpPost]
         public IActionResult Delete(int employeeId)
         {
-            Employee deletedEmployee = repository.DeleteEmployee(employeeId);
-            if (deletedEmployee != null)
+            Employee emplToDel = repository.GetEmployee(employeeId);
+            try
             {
-                TempData["message"] = $"Сотрудников {deletedEmployee.FullName} был удалён";
+                repository.DeleteEmployee(employeeId);
             }
-            return RedirectToAction("List");
+            catch (DbUpdateException ex)
+            {
+                var innerException = ex.InnerException.InnerException as MySql.Data.MySqlClient.MySqlException;
+                if (innerException != null && innerException.Number == 1451)
+                {
+                    TempData["Error"] = $"Не удалось удалить сотрудника <b>{emplToDel.FullName}</b>: на него есть ссылки в других объектах";
+                    return RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            TempData["message"] = $"Сотрудник <b>{emplToDel.FullName}</b> успешно удалён.";
+            return RedirectToAction(nameof(List));
         }
 
         [Authorize]

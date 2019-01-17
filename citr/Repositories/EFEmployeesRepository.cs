@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using citr.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace citr.Models
+namespace citr.Repositories
 {
     public class EFEmployeesRepository : IEmployeeRepository
     {
@@ -27,6 +28,11 @@ namespace citr.Models
                 context.SaveChanges();
             }
             return dbEntry;
+        }
+
+        public Employee GetEmployee(int id)
+        {
+            return Employees.FirstOrDefault(em => em.EmployeeID == id);
         }
 
         public void SaveEmployee(Employee employee)

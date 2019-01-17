@@ -12,5 +12,7 @@ namespace citr.Models
         void SaveEmployee(Employee employee);
 
         Employee DeleteEmployee(int employeeId);
+
+        Employee GetEmployee(int id);
     }
 }
