@@ -53,7 +53,7 @@
 }
 
 .btn-approving {
-    width: 150px;
+    width: 120px !important;
     margin: 0;
     padding: 0;
 }
@@ -68,4 +68,12 @@
 
 li .select2-results__option {
     margin-left: 30px !important;
+}
+
+.popover {
+    background-color: #FFFD7D;
+    text-align: center
+}
+.popover .arrow {
+    visibility: hidden;
 }

@@ -8,104 +8,112 @@
 @{
     var empls = EmployeeRepository.Employees;
 }
-
-<div class="card text-left w-75 mx-auto">
-    <div class="card-header">
-        <h4>Информационный ресурс</h4>
-    </div>
-    <div class="card-body">
-        <div asp-validation-summary="All" class="text-danger"></div>
-        <form asp-action="Edit" method="post" novalidate>
-            <input type="hidden" asp-for="ResourceID" />
-            <div class="form-group">
-                <label asp-for="Name" class="font-weight-bold"></label>
-                <div><span asp-validation-for="Name" class="text-danger"></span></div>
-                <input asp-for="Name" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="font-weight-bold"></label>
-                <div><span asp-validation-for="Description" class="text-danger"></span></div>
-                <textarea asp-for="Description" class="form-control"></textarea>
-            </div>
-            <div class="form-group">
-                <label asp-for="OwnerEmployeeID" class="font-weight-bold"></label>
-                <div><span asp-validation-for="OwnerEmployeeID" class="text-danger"></span></div>
-                <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single js-data-example-ajax">
-                    @if (Model.OwnerEmployeeID == 0)
-                    {
-                        <option disabled selected value="">Выберите владельца</option>
-                    }
-                    else
-                    {
-                        <option selected value="@Model.OwnerEmployeeID">@Model.OwnerEmployee.FullName</option>
-                    }
-                </select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryID" class="font-weight-bold"></label>
-                <div><span asp-validation-for="CategoryID" class="text-danger"></span></div>
-                <div class="input-group input-group-sm">
-                    <div class="input-group-append">
-                        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#categoryModal">Выбрать</button>
+@section head {  
+    <script type="text/javascript">
+        $.validator.setDefaults({
+            ignore: ""
+        });
+    </script>
+}
+<div class="container col-8">
+    <div class="card text-left mx-auto">
+        <div class="card-header">
+            <h4>Информационный ресурс</h4>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <form asp-action="Edit" method="post" novalidate>
+                <input type="hidden" asp-for="ResourceID" />
+                <div class="form-group">
+                    <label asp-for="Name" class="font-weight-bold"></label>
+                    <div><span asp-validation-for="Name" class="text-danger"></span></div>
+                    <input asp-for="Name" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="font-weight-bold"></label>
+                    <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="OwnerEmployeeID" class="font-weight-bold"></label>
+                    <div><span asp-validation-for="OwnerEmployeeID" class="text-danger"></span></div>
+                    <select asp-for="OwnerEmployeeID" class="form-control js-example-basic-single js-data-example-ajax">
+                        @if (Model.OwnerEmployeeID.HasValue && Model.OwnerEmployeeID.Value > 0)
+                        {
+                            <option selected value="@Model.OwnerEmployeeID">@Model.OwnerEmployee.FullName</option>
+                        }
+                        else
+                        {
+                            <option disabled selected value="">Выберите владельца</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CategoryID" class="font-weight-bold"></label>
+                    <div><span asp-validation-for="CategoryID" class="text-danger"></span></div>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#categoryModal">Выбрать</button>
+                        </div>
+                        <label class="form-control" id="ResourceCategoryName">@Model.Category?.Name</label>
+                        <input hidden asp-for="CategoryID" class="form-control" />
                     </div>
-                    <label class="form-control" id="ResourceCategoryName">@Model.Category?.Name</label>
-                    <input hidden asp-for="CategoryID" class="form-control" />
+                    <partial name="CategoryTree.cshtml" />
                 </div>
-                <partial name="CategoryTree.cshtml" />
-            </div>
-            <div class="form-group">
-                <label class="font-weight-bold">Роли (уровни доступа)</label>
-                <div><span asp-validation-for="Roles" class="text-danger"></span></div>
-                <div class="input-group col-8">
-                    <table class="table table-sm small">
-                        <tr>
-                            <td class="align-middle" width="75%">
-                                <input id="newRoleName" class="form-control form-control-sm" />
-                            </td>
-                            <td class="align-middle text-left" width="25%">
-                                <div class="btn-group btn-group-sm ">
-                                    <button type="button" class="btn btn-outline-info btn-sm rounded-0  btn-role-action " id="addRole"
-                                            data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Укажите название новой роли">
-                                        Добавить <span class="fa fa-plus-circle"></span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="input-group col-8">
-                    <table id="tblRoles" class="table table-sm small">
-                        <tbody>
-                            @if (Model.Roles != null)
-                            {
-                                for (int i = 0; i < Model.Roles.Count; i++)
+                <div class="form-group">
+                    <label class="font-weight-bold">Роли (уровни доступа)</label>
+                    <div><span asp-validation-for="Roles" class="text-danger"></span></div>
+                    <div class="input-group col-8 m-0 p-0">
+                        <table class="table table-sm small">
+                            <tr>
+                                <td class="align-middle" width="75%">
+                                    <input id="newRoleName" class="form-control form-control-sm" />
+                                </td>
+                                <td class="align-middle text-left" width="25%">
+                                    <div class="btn-group btn-group-sm ">
+                                        <button type="button" class="btn btn-outline-info btn-sm rounded-0  btn-role-action " id="addRole"
+                                                data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Укажите название новой роли">
+                                            Добавить <span class="fa fa-plus-circle"></span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="input-group col-8 m-0 p-0">
+                        <table id="tblRoles" class="table table-sm small">
+                            <tbody>
+                                @if (Model.Roles != null)
                                 {
-                                    var vd = new ViewDataDictionary(ViewData);
-                                    vd.TemplateInfo.HtmlFieldPrefix = string.Format("Roles[{0}]", i);
-                                    <partial name="Role" model=@Model.Roles[i] view-data=vd />
+                                    for (int i = 0; i < Model.Roles.Count; i++)
+                                    {
+                                        var vd = new ViewDataDictionary(ViewData);
+                                        vd.TemplateInfo.HtmlFieldPrefix = string.Format("Roles[{0}]", i);
+                                        <partial name="Role" model=@Model.Roles[i] view-data=vd />
+                                    }
                                 }
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                
-            </div>
-            <div class="text-center">
-                <button class="btn btn-outline-primary" type="submit">Сохранить</button>
-                <a asp-action="List" class="btn btn-secondary">Отмена</a>
-            </div>
-        </form>
-    </div>
-    <div class="card-footer text-muted">
-        ...
-    </div>
-    <partial name="History" model="@Model.History" />
-</div>
+                            </tbody>
+                        </table>
+                    </div>
 
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-outline-primary" type="submit">Сохранить</button>
+                    <a asp-action="List" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-muted">
+            ...
+        </div>
+        <partial name="History" model="@Model.History" />
+    </div>
+</div>
 <script type="text/javascript">
+
     $(document).ready(function () {
 
-       
+
 
         $('.js-data-example-ajax').select2({
             ajax: {
@@ -113,14 +121,11 @@
                 type: 'GET',
                 data: function (params) {
                     var query = {
-                        search: params.term                       
+                        search: params.term
                     }
-
-                    // Query parameters will be ?search=[term]&type=public
                     return query;
                 },
                 processResults: function(data) {
-                    // Tranforms the top-level key of the response object from 'items' to 'results'
                     return {
                         results: data
                     };
@@ -134,7 +139,7 @@
             var nextIndex = $("#tblRoles tbody tr").length;
             var newRoleName = $("#newRoleName").val();
             if (newRoleName.length == 0) {
-                $('#newRoleName').popover('show');
+                $('#addRole').popover('show');
             } else {
                 $.ajax({
                     url: '@Url.Action("AddRole", "Resource")',
@@ -147,7 +152,7 @@
             }
         });
 
-        $('#addaddRoleDetail').mouseleave(function () {
+        $('#addRole').mouseleave(function () {
             $(this).popover('hide');
         });
 

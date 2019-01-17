@@ -7,7 +7,8 @@
 @{
     var empls = EmployeeRepository.Employees;
 }
-<div class="card text-left w-75 mx-auto">
+<div class="container col-10">
+<div class="card text-left mx-auto">
     <form method="post" novalidate>
         <div class="card-header">
             <h4>Заявка на доступ к информационному ресурсу</h4>
@@ -70,13 +71,13 @@
                         <label class="col-3 col-form-label">4. Нажмите кнопку</label>
                         <div class="col-9">
                             <button type="button" class="btn btn-success rounded-0 btn-sm" id="addDetail"
-                                    data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Заполните поля, расположенные выше">
+                                    data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Заполните все поля, расположенные выше">
                                 Добавить <span class="fa fa-plus-circle"></span>
                             </button>
                         </div>
                     </div>
                 }
-                <table id="tblDetails" class="table table-sm small table-success mt-2">
+                <table id="tblDetails" class="table table-sm small table-success mt-2 table-bordered">
                     <thead>
                         <tr>
                             <th style="width: 20%;">Доступ для сотрудника</th>
@@ -105,7 +106,14 @@
             <div class="form-group form-group-sm">
                 <label asp-for="Comment" class="font-weight-bold"></label>
                 <div><span asp-validation-for="Comment" class="text-danger"></span></div>
-                <textarea asp-for="Comment" class="form-control"></textarea>
+                @if (Model.State == RequestState.New)
+                {
+                    <textarea asp-for="Comment" class="form-control"></textarea>
+                }
+                else
+                {
+                    <textarea asp-for="Comment" class="form-control" readonly></textarea>
+                }
             </div>
             <div class="text-center">
                 @if (Model.State == RequestState.New)
@@ -125,7 +133,7 @@
             <partial name="History" model="@Model.History" />
         </div>
     </form>
-
+    </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {

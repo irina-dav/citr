@@ -3,10 +3,9 @@
 }
 
 @section head {
-    <link href="~/lib/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
-    <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>    
+    <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script>
         var listSettings = {
             "destroy": true,
@@ -27,7 +26,7 @@
                 },
             }
         };
-        $(document).ready(function () {            
+        $(document).ready(function () {
             $('#list').DataTable(listSettings);
         });
     </script>

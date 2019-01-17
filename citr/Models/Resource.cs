@@ -24,9 +24,9 @@ namespace citr.Models
         public string Location { get; set; }
 
         [Required(ErrorMessage = "Выберите категорию ресурса")]     
-        //[Range(1, int.MaxValue, ErrorMessage = "Выберите категорию ресурса")]
+        [Range(1, int.MaxValue, ErrorMessage = "Выберите категорию ресурса")]
         [Display(Name = "Категория")]
-        public int? CategoryID { get; set; }
+        public int CategoryID { get; set; }
         public virtual ResourceCategory Category { get; set; }
 
         [Required(ErrorMessage = "Укажите владельца ресурса")]      

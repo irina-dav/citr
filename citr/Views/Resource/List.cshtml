@@ -4,19 +4,19 @@
     ViewBag.Title = "Список ресурсов";
     Layout = "_LayoutList";
 }
-<div class="col-md-10 col-md-offset-1">
+<div class="pl-3">
     <h2>
         Информационные ресурсы
         <a asp-action="Create" class="btn btn-link btn-light btn-sm rounded-0">Создать новый ресурс</a>
     </h2>
     <div class="panel-body">
-        <table id="list" class="table table-bordered table-sm small">
+        <table id="list" class="table table-bordered table-sm table-striped table-hover  small">
             <thead>
                 <tr>
                     <th style="width: 20%">Название</th>
-                    <th style="width: 10%">Владелец</th>
+                    <th style="width: 20%">Владелец</th>
                     <th style="width: 20%">Описание</th>
-                    <th style="width: 20%">Категория</th>
+                    <th style="width: 15%">Категория</th>
                     <th style="width: 10%">Дата изменения</th>
                     <th style="width: 20%" class="text-center">Действия</th>
                 </tr>
@@ -25,7 +25,7 @@
             {
                 <tr>
                     <td>@res.Name</td>
-                    <td>@res.OwnerEmployee?.Account</td>
+                    <td>@res.OwnerEmployee?.FullName</td>
                     <td>@res.Description</td>
                     <td>@res.Category?.Name</td>
                     <td>@res.ChangeDate</td>
