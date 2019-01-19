@@ -6,7 +6,7 @@
     <td class="align-middle">@Model.Role.Name</td>
     <td class="align-middle">@Model.ResourceOwner.FullName</td>
     <td class="align-middle">@Model.Resource.Category.Name</td>
-    <td class="small">
+    <td class="small align-middle">
         @if (Model.CanDelete)
         {
             @Html.HiddenFor(m => Model.IsDeleted)
@@ -28,13 +28,22 @@
         else
         {
             <input hidden asp-for="ApprovingResult" />
-            <div class="text-uppercase"><strong>@Model.ApprovingResult.GetDisplayName()</strong></div>
+            <div class="text-uppercase @(@Model.ApprovingResult == ResourceApprovingResult.Approved ? "text-success" : "text-danger")"><strong>@Model.ApprovingResult.GetDisplayName()</strong></div>
         }
     </td>
     <td class="text-right align-middle">
-        @if (!string.IsNullOrEmpty(Model.TicketNumber))
-        {
-            <a href=@otrsService.GetTicketUrl(Model.TicketNumber) target="_blank">@Model.TicketNumber</a>
+        @if (Model.TicketID.HasValue)
+        {            
+        <a href=@otrsService.GetTicketUrl(Model.Ticket.TicketNumber) target="_blank">
+            @Model.Ticket.TicketNumber</a>
+            @if (Model.Ticket.EndDate.HasValue)
+            {
+                <span>выполнена @Model.Ticket.EndDate.Value.ToString("dd.MM.yy") </span>
+            }
+            else
+            {
+                <span>выполняется </span>
+            }
         }
     </td>
     @Html.HiddenFor(m => Model.EmployeeAccessID)

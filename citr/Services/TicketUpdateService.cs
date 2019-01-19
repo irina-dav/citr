@@ -43,6 +43,7 @@ namespace citr.Services
             using (var scope = serviceProvider.CreateScope())
             {
                 var otrsService = scope.ServiceProvider.GetService<OTRSService>();
+                otrsService.UpdateRequestDetails();
                 otrsService.UpdateTickets();
             }
         }

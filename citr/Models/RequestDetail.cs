@@ -12,7 +12,7 @@ namespace citr.Models
 
         public int ResourceID { get; set; }
         public virtual Resource Resource { get; set; }
-       
+
         public int ResourceOwnerID { get; set; }
         public virtual Employee ResourceOwner { get; set; }
 
@@ -33,7 +33,8 @@ namespace citr.Models
         [NotMapped]
         public bool CanApprove { get; set; }
 
-        public string TicketNumber { get; set; }  
+        public long? TicketID { get; set; }
+        public virtual Ticket Ticket { get; set; }
 
     }
 }

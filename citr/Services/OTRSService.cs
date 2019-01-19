@@ -30,28 +30,34 @@ namespace citr.Services
             return string.Format(configuration.GetSection("AppSettings")["OTRSTicketUrlTemplate"].ToString(), ticketNumber);
         }
 
-        public void UpdateTickets()
+        public void UpdateRequestDetails()
         {         
             try
             {                    
                 var approvedRequests = requestRepository.Requests.Where(r => r.State == RequestState.Approved);
-                var detailsToUpdate = approvedRequests.SelectMany(d => d.Details).Where(d => d.ApprovingResult == ResourceApprovingResult.Approved && string.IsNullOrEmpty(d.TicketNumber));
+                var detailsToUpdate = approvedRequests.SelectMany(d => d.Details).Where(d => d.ApprovingResult == ResourceApprovingResult.Approved && !d.TicketID.HasValue);
 
                 logger.LogInformation($"Found RequestDetails for update: {detailsToUpdate.Count()}");
 
                 if (detailsToUpdate.Count() == 0)
                     return;
+
                 using (var connection = new MySqlConnection(configuration.GetConnectionString("OTRS")))
                 {
                     foreach (RequestDetail det in detailsToUpdate)
                     {
-                        string ticketNumber = SearchTicket(det.ID.ToString(), connection);
-                        if (!string.IsNullOrEmpty(ticketNumber))
+                        Ticket ticketWithNumber = SearchTicketOnlyNumber(det.ID.ToString(), connection);
+                        if (ticketWithNumber != null)
                         {
-                            det.TicketNumber = ticketNumber;
-                            //context.SaveChanges();
+                            if (context.Tickets.Find(ticketWithNumber.TicketID) == null)
+                            {
+                                context.Tickets.Add(ticketWithNumber);
+                                context.SaveChanges();
+                            }
+                            det.TicketID = ticketWithNumber.TicketID;
+                            
                             requestRepository.SaveRequestDetail(det);
-                            logger.LogInformation($"Updated RequestDetail {det.ID}, ticketNumer: {det.TicketNumber}");
+                            logger.LogInformation($"Updated RequestDetail {det.ID}, ticketID: {det.TicketID}");
                         }
                     }
                 }                   
@@ -62,24 +68,66 @@ namespace citr.Services
             }
         }
 
-        private string SearchTicket(string number, MySqlConnection connection)
+        public void UpdateTickets()
         {
-            string tn = null;
             try
             {
+                var ticketsEmptyEndDate = context.Tickets.Where(t => !t.EndDate.HasValue).Select(t => t.TicketID);
+             
+                logger.LogInformation($"Found Tickets with empty EndDate: {ticketsEmptyEndDate.Count()}");
 
+                if (ticketsEmptyEndDate.Count() == 0)
+                    return;
+
+                using (var connection = new MySqlConnection(configuration.GetConnectionString("OTRS")))
+                {
+                    foreach (long ticketId in ticketsEmptyEndDate)
+                    {
+                        TicketEndInfo ticketWithEndDate = SearchTicketEndInfo(ticketId, connection);
+                        if (ticketWithEndDate != null)
+                        {
+                            var ticketEntry = context.Tickets.Find(ticketId);
+                            ticketEntry.EndDate = ticketWithEndDate.EndDate;
+                            ticketEntry.EndByUser = ticketWithEndDate.EndByUser;
+                            logger.LogInformation($"Updated Ticket {ticketEntry.TicketID}");
+                        }
+                    }
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.ToString());
+            }
+        }
+
+        class TicketEndInfo
+        {
+            public DateTime? EndDate { get; set; }
+            public string EndByUser { get; set; }
+        }
+
+        private TicketEndInfo SearchTicketEndInfo(long ticketId, MySqlConnection connection)
+        {
+            string endUser = "";
+            DateTime? endDate = null;
+            try
+            {
                 if (connection.State != System.Data.ConnectionState.Open)
                 {
                     connection.Open();
                 }
-                var command = new MySqlCommand("SELECT * FROM otrs2.ticket where title like CONCAT('%', @number, '%') LIMIT 1;", connection);
-                command.Parameters.AddWithValue("number", number);
+                var command = new MySqlCommand("SELECT ticket_history.id, concat_ws(' ', users.last_name, users.first_name) user, ticket_history.change_time time FROM ticket_history " +
+                                                "LEFT JOIN users ON ticket_history.change_by = users.id " +
+                                                "WHERE ticket_history.ticket_id =@ticketId && RIGHT(name, 19) = 'closed successful%%'", connection);
+                command.Parameters.AddWithValue("ticketId", ticketId);
 
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        tn = reader["tn"].ToString();
+                        endUser = reader["user"].ToString();
+                        endDate = DateTime.Parse(reader["time"].ToString());
                     }
                 }
             }
@@ -87,7 +135,49 @@ namespace citr.Services
             {
                 logger.LogError(ex.ToString());
             }
-            return tn;
+            if (!string.IsNullOrEmpty(endUser) && endDate.HasValue)
+            {
+                return new TicketEndInfo()
+                {
+                    EndDate = endDate.Value,
+                    EndByUser = endUser
+                };
+            }
+            else
+                return null;
+
+        }
+
+        private Ticket SearchTicketOnlyNumber(string detailText, MySqlConnection connection)
+        {
+            string tn = "";
+            int id = 0;
+            try
+            {
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    connection.Open();
+                }
+                var command = new MySqlCommand("SELECT id, tn, title FROM otrs2.ticket where title like CONCAT('%', @number, '%') LIMIT 1;", connection);
+                command.Parameters.AddWithValue("number", detailText);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        tn = reader["tn"].ToString();
+                        id = int.Parse(reader["id"].ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.ToString());
+            }
+            if (!string.IsNullOrEmpty(tn) && id > 0)
+                return new Ticket() { TicketID = id, TicketNumber = tn };
+            else
+                return null;
         }
     }
 }

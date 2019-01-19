@@ -27,13 +27,10 @@ namespace citr.Models
             .Include(d => d.Details)
                 .ThenInclude(d => d.EmployeeAccess)
              .Include(r => r.Details)
-                .ThenInclude(d => d.ResourceOwner);
+                .ThenInclude(d => d.ResourceOwner)
+            .Include(r => r.Details)
+                .ThenInclude(d => d.Ticket);
                 
-
-        //.Include(r => r.EmployeeAccesses)
-        //.ThenInclude(r => r.Employee);
-
-
         public void SaveRequest(Request request)
         {
             if (request.RequestID == 0)
@@ -74,5 +71,6 @@ namespace citr.Models
             context.Entry(dbEntry).State = EntityState.Modified;
             context.SaveChanges();
         }
+        
     }
 }

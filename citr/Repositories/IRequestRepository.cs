@@ -12,7 +12,6 @@ namespace citr.Models
         void SaveRequest(Request request);
 
         void SaveRequestDetail(RequestDetail rd);
-
-        //void AddRequestEvent(Request request, string textEvent);
+        
     }
 }

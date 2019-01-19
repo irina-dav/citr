@@ -26,6 +26,8 @@ namespace citr.Models
 
         public DbSet<UserRole> UserRole { get; set; }
 
+        public DbSet<Ticket> Tickets { get; set; }
+
         //public DbSet<EmployeeAccess> EmployeeAccess { get; set; }
 
         //public DbSet<ResourceAccess> ResourceAccess { get; set; }
