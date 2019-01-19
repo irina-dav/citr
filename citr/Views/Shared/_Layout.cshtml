@@ -46,6 +46,10 @@
         {
             <div class="alert alert-danger">@Html.Raw(@TempData["warning"])</div>
         }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">@Html.Raw(@TempData["Error"])</div>
+        }
         @RenderBody()
     </div>
 </body>

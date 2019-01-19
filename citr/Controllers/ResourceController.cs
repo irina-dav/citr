@@ -102,6 +102,7 @@ namespace citr.Controllers
                 Description = res.Description,
                 Name = res.Name,
                 OwnerEmployeeID = res.OwnerEmployeeID,
+                OwnerEmployee = res.OwnerEmployee,
                 Roles = new List<AccessRole>(res.Roles.Select(r => new AccessRole() { Name = r.Name }))
             };
             ViewBag.Json = categoryTree.GetCategoriesJson(res.CategoryID);         
