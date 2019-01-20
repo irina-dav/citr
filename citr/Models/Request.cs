@@ -15,43 +15,25 @@ namespace citr.Models
     public class Request : IHistoryable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Display(Name = "Номер заявки")]
         public int RequestID { get; set; }
 
-        [ListReqiredAttribute(ErrorMessage = "Заполните детали запроса")]
         public virtual List<RequestDetail> Details { get; set; }
 
-        //[ListReqiredAttribute(ErrorMessageResourceName = "RequesResourcesRequired", ErrorMessageResourceType = typeof(ValidationRes))]
-        //public virtual List<EmployeeAccess> EmployeeAccesses { get; set; }
-
-       // [NotMapped]
-       // public Guid[] ResourceIDs { get; set; }
-
-        //[ListReqiredAttribute(ErrorMessageResourceName = "RequestEmployeesRequired", ErrorMessageResourceType = typeof(ValidationRes))]
-       // public virtual List<ResourceAccess> ResourceAccesses { get; set; }
-
-        [Display(Name = "Комментарий")]
         public string Comment { get; set; }
 
-        public int AuthorID { get; set; }        
+        public int AuthorID { get; set; }
+        public virtual Employee Author { get; set; }
 
         public DateTime CreateDate { get; set; }
 
         public DateTime ChangeDate { get; set; }
 
-        [Display(Name = "Статус заявки")]
         public RequestState State { get; set; }
-
-        public Employee Author { get; set; }
 
         public virtual List<HistoryRow> History { get; set; }
 
         public int ObjectID { get => RequestID; }
-
-        //public string TicketNumber { get; set; }
-
-        //[NotMapped]
-        //public string TicketUrl { get; set; }     
+   
     }
 
     public enum RequestState
@@ -64,7 +46,7 @@ namespace citr.Models
         NotApproved,
         [Display(Name = "Согласована")]
         Approved,
-        [Display(Name = "Отменена")]
+        [Display(Name = "Отказ")]
         Canceled
     }
 

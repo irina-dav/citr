@@ -1,4 +1,4 @@
-﻿@model Request
+﻿@model RequestViewModel
 @{
     ViewBag.Title = "Запрос на доступ к информационным ресурсам";
     Layout = "_Layout";
@@ -7,6 +7,7 @@
 @{
     var empls = EmployeeRepository.Employees;
 }
+@inject ILdapService ldapService;
 <div class="container col-10">
 <div class="card text-left mx-auto">
     <form method="post" novalidate>
@@ -15,14 +16,12 @@
             <div class="form-group m-0 p-0">
                 <label class="font-weight-bold">Номер заявки:</label>
                 @{var number = (Model.RequestID == 0) ? "Будет выдан после сохранения" : Model.RequestID.ToString();}
-                <label class="col-6">@number</label>
+                <label class="col-6">@number</label>    
                 <input hidden asp-for="RequestID" class="form-control" />
             </div>
             <div class="form-group m-0 p-0">
                 <label class="font-weight-bold">Статус заявки:</label>
                 <label class="col-6">@Model.State.GetDisplayName()</label>
-                <input hidden asp-for="AuthorID" class="form-control" />
-                <input hidden asp-for="State" class="form-control" />
             </div>
             <div class="form-group m-0 p-0">
                 <label class="font-weight-bold">Автор заявки:</label>
@@ -138,7 +137,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('#selectEmployee').val('@Html.Raw(@ViewBag.CurrentEmployeeId)');
+        $('#selectEmployee').val('@Html.Raw(@ldapService.GetUserEmployee().EmployeeID)');
         $('#selectEmployee').trigger('change');
 
         $('.js-data-example-ajax').select2({

@@ -9,9 +9,9 @@ namespace citr.Models
     {
         IEnumerable<Request> Requests { get; }
 
-        void SaveRequest(Request request);
+        //void SaveRequest(Request request);
 
-        void SaveRequestDetail(RequestDetail rd);
+        //void SaveRequestDetail(RequestDetail rd);
         
     }
 }

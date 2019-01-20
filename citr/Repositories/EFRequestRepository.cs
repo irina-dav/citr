@@ -31,7 +31,7 @@ namespace citr.Models
             .Include(r => r.Details)
                 .ThenInclude(d => d.Ticket);
                 
-        public void SaveRequest(Request request)
+       /* public void SaveRequest(Request request)
         {
             if (request.RequestID == 0)
             {
@@ -58,19 +58,19 @@ namespace citr.Models
             }
             context.SaveChanges();
         }
-
-        public void SaveRequestDetail(RequestDetail rd)
+        */
+        /*public void SaveRequestDetail(RequestDetail rd)
         {
-            /* var fromDb = context.Requests
+             var fromDb = context.Requests
                  .Include(r => r.Details)
                  .Include(r => r.History)
                  .SingleOrDefault(x => x.Details.Any(d => d.ID == rd.ID));
              context.Entry(rd).State = EntityState.Modified;
-             */
+             
             var dbEntry = context.RequestDetail.First(d => d.ID == rd.ID);
             context.Entry(dbEntry).State = EntityState.Modified;
             context.SaveChanges();
         }
-        
+        */
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace citr.Models
 {
-    public class RequestDetail : IViewTableRow
+    public class RequestDetail
     {
         public int ID { get; set; }
 
@@ -20,21 +20,11 @@ namespace citr.Models
         public virtual AccessRole Role { get; set; }
 
         public int EmployeeAccessID { get; set; }
-        public Employee EmployeeAccess { get; set; }
+        public virtual Employee EmployeeAccess { get; set; }
 
         public ResourceApprovingResult ApprovingResult { get; set; }
-
-        [NotMapped]
-        public bool IsDeleted { get; set; }
-
-        [NotMapped]
-        public bool CanDelete { get; set; } = true;
-
-        [NotMapped]
-        public bool CanApprove { get; set; }
-
+       
         public long? TicketID { get; set; }
         public virtual Ticket Ticket { get; set; }
-
     }
 }

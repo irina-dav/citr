@@ -1,4 +1,5 @@
-﻿using System;
+﻿using citr.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,29 +9,38 @@ namespace citr.Models.ViewModels
 {
     public class RequestViewModel
     {
+        [Display(Name = "Номер заявки")]
+        public int RequestID { get; set; }
 
-        public Request Request { get; set; }
+        [ListReqiredAttribute(ErrorMessage = "Заполните детали запроса")]
+        public virtual List<RequestDetailViewModel> Details { get; set; } = new List<RequestDetailViewModel>();
 
-        /*public int RequestID { get; set; }
+        [Display(Name = "Комментарий")]
+        public string Comment { get; set; }        
 
-        [Required(ErrorMessage = "Выберите сотрудников для предоставления доступа")]
-        [Display(Name = "Доступ для сотрудников")]
-        public int[] EmployeesForIds { get; set; }
-
-        [Required(ErrorMessage = "Выберите информационный ресурс(ы)")]
-        [Display(Name = "Информационный ресурс")]
-        public int[] ResourcesIDs { get; set; }
-
-        public int AuthorEmployeeID { get; set; }
-
-        public string ResourceName { get; set; }
-
-        public DateTime CreateDate { get; set; }
-
-        public DateTime ChangeDate { get; set; }
-
+        [Display(Name = "Статус заявки")]
         public RequestState State { get; set; }
 
-        public List<HistoryRow> History { get; set; }*/
+        public Employee Author { get; set; }
+
+        public virtual List<HistoryRow> History { get; set; }
+
+        public RequestViewModel()
+        {
+
+        }
+
+        public RequestViewModel(Request request)
+        {            
+            RequestID = request.RequestID;
+            Comment = request.Comment;
+            State = request.State;
+            Author = request.Author;
+            History = request.History;
+            foreach (RequestDetail detail in request.Details)
+            {
+                Details.Add(new RequestDetailViewModel(detail));
+            }
+        }
     }
 }

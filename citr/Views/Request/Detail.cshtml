@@ -1,4 +1,4 @@
-﻿@model RequestDetail
+﻿@model RequestDetailViewModel
 @inject OTRSService otrsService
 <tr>
     <td class="align-middle">@Model.EmployeeAccess.FullName</td>
@@ -16,34 +16,29 @@
         {
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-success rounded-0 btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Approved ? "active" : "")">
-                    <input type="radio" value="@((int)ResourceApprovingResult.Approved)" asp-for="ApprovingResult" autocomplete="off" />
+                    <input type="radio" value="@((int)ResourceApprovingResult.Approved)" asp-for="ApprovingResult" autocomplete="off" 
+                         checked="@(Model.ApprovingResult == ResourceApprovingResult.Approved)" />
                     <span class="fa fa-check"></span><span>Согласовано</span>
                 </label>
                 <label class="btn btn-danger rounded-0 btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Declined ? "active" : "")">
-                    <input type="radio" value="@((int)ResourceApprovingResult.Declined)" asp-for="ApprovingResult" autocomplete="off" />
+                    <input type="radio" value="@((int)ResourceApprovingResult.Declined)" asp-for="ApprovingResult" autocomplete="off"
+                        checked="@(Model.ApprovingResult == ResourceApprovingResult.Declined)" />
                     <span class="fa fa-check"></span>Отказ
                 </label>
             </div>
         }
         else
         {
-            <input hidden asp-for="ApprovingResult" />
             <div class="text-uppercase @(@Model.ApprovingResult == ResourceApprovingResult.Approved ? "text-success" : "text-danger")"><strong>@Model.ApprovingResult.GetDisplayName()</strong></div>
         }
     </td>
     <td class="text-right align-middle">
         @if (Model.TicketID.HasValue)
-        {            
-        <a href=@otrsService.GetTicketUrl(Model.Ticket.TicketNumber) target="_blank">
-            @Model.Ticket.TicketNumber</a>
-            @if (Model.Ticket.EndDate.HasValue)
-            {
-                <span>выполнена @Model.Ticket.EndDate.Value.ToString("dd.MM.yy") </span>
-            }
-            else
-            {
-                <span>выполняется </span>
-            }
+        {
+            <a href=@otrsService.GetTicketUrl(Model.Ticket.TicketNumber) target="_blank">
+                @Model.Ticket.TicketNumber
+            </a>
+            @Model.TicketInfo
         }
     </td>
     @Html.HiddenFor(m => Model.EmployeeAccessID)

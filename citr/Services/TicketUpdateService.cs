@@ -42,9 +42,9 @@ namespace citr.Services
             _logger.LogInformation("TicketUpdateService is working.");
             using (var scope = serviceProvider.CreateScope())
             {
-                var otrsService = scope.ServiceProvider.GetService<OTRSService>();
+                /*var otrsService = scope.ServiceProvider.GetService<OTRSService>();
                 otrsService.UpdateRequestDetails();
-                otrsService.UpdateTickets();
+                otrsService.UpdateTickets();*/
             }
         }
 

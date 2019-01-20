@@ -52,14 +52,15 @@ namespace citr.Services
                             if (context.Tickets.Find(ticketWithNumber.TicketID) == null)
                             {
                                 context.Tickets.Add(ticketWithNumber);
-                                context.SaveChanges();
+                                //context.SaveChanges();
                             }
                             det.TicketID = ticketWithNumber.TicketID;
                             
-                            requestRepository.SaveRequestDetail(det);
+                            //requestRepository.SaveRequestDetail(det);
                             logger.LogInformation($"Updated RequestDetail {det.ID}, ticketID: {det.TicketID}");
                         }
                     }
+                    context.SaveChanges();
                 }                   
             }            
             catch (Exception ex)
