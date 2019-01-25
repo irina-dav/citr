@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <form id="frmMain" asp-action="UpdateEmployees" method="post">
+        <h2>Обновление пользователей</h2>
+        <div>По данным из Active Directory будут созданы записи для новых сотрудников и обновлены реквизиты (имя, должность, e-mail) для существующих.</div>
+        <div>Для запуска нажмите на кнопку, операция может выполняться 1-3 минуты.</div>
+        <div><button id="btnSubmit" type="submit" asp-action="UpdateEmployees" class="btn btn-outline-info rounded-0 mt-3">Запустить</button></div>
+        <div id="divInfo" class="mt-2">Процесс запущен, дождитесь завершения...</div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#divInfo").hide();
+        $('#frmMain').submit(function (e) {
+            $("#btnSubmit").attr("disabled", true);
+            $("#divInfo").toggle();
+        });
+    });
+</script>

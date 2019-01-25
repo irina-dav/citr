@@ -15,5 +15,6 @@ namespace citr.Models
         public string SearchFilter { get; set; }
         public string EmployeesQuery { get; set; }
         public string AdminCn { get; set; }
+        public List<string> OrgUnits { get; set; }
     }
 }

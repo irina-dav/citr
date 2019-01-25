@@ -1,0 +1,53 @@
+﻿@model ResultUserUpdate
+
+@{ Layout = "_Layout";}
+
+<div class="container">
+    <h2>Результаты обновления пользователей</h2>
+    <dl class="row mb-5 mt-5 col-6 p-0">
+        <dt class="col-9">Найдено записей Active Directory</dt>
+        <dd class="col-3">@Model.SearchedAccountsCount</dd>
+
+        <dt class="col-9">Создано новых сотрудников</dt>
+        <dd class="col-3">@Model.NewUserCount</dd>
+
+        <dt class="col-9">Обновлено сотрудников</dt>
+        <dd class="col-3">@Model.UpdatedUserCount</dd>
+
+        <dt class="col-9">Пропущено некорректных записей AD</dt>
+        <dd class="col-3">@Model.NotValidAccountCount</dd>
+
+   </dl>
+    
+    <h6>Возникшие ошибки:</h6>
+    <ul class="small">
+        @foreach (var error in Model.Errors)
+        {
+            <li>@error</li>
+        }
+    </ul>
+
+    <h6>Новые записи сотрудников:</h6>
+    <ol class="small">
+        @foreach (var employee in Model.NewEmployees)
+        {
+            <li>@($"{employee.FullName}, {employee.Position}, {employee.Account}, {employee.Email}")</li>
+        }
+    </ol>
+
+    <h6>Обновлены записи сотрудников:</h6>
+    <ol class="small">
+        @foreach (var employee in Model.UpdatedEmployees)
+        {
+            <li>@($"{employee.FullName}, {employee.Position}, {employee.Account}, {employee.Email}")</li>
+        }
+    </ol>
+
+    <h6>Пропущены некорректные записи сотрудников <small class="text-muted">(отсутсвует имя, e-mail или должность)</small>:</h6>
+    <ol class="small">
+        @foreach (var account in Model.NotValidAccounts)
+        {
+            <li>@account</li>
+        }
+    </ol>
+</div>

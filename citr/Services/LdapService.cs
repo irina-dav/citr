@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Novell.Directory.Ldap;
 using citr.Models;
+using citr.Models.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace citr.Services
 {
     public interface ILdapService
     {
-        string PopulateEmployees();
+        ResultUserUpdate UpdateEmployees();
         AppUser Login(string username, string password);
         string GetUserDisplayInfo();
         Employee GetUserEmployee();
@@ -30,12 +32,14 @@ namespace citr.Services
         private readonly LdapConnection connection;
         private IEmployeeRepository employeesRepository;
         private readonly IHttpContextAccessor httpContextAccessor;
+        ILogger<LdapService> logger;
 
-        public LdapService(IOptions<LdapConfig> cfg, IEmployeeRepository emplRepo, IHttpContextAccessor httpCtxAccessor)
+        public LdapService(IOptions<LdapConfig> cfg, IEmployeeRepository emplRepo, IHttpContextAccessor httpCtxAccessor, ILogger<LdapService> logger)
         {
             httpContextAccessor = httpCtxAccessor;
             employeesRepository = emplRepo;
             config = cfg.Value;
+            this.logger = logger;
             connection = new LdapConnection
             {
                 SecureSocketLayer = false
@@ -101,10 +105,10 @@ namespace citr.Services
             return employeesRepository.Employees.FirstOrDefault(e => e.Account.Equals(account, StringComparison.InvariantCultureIgnoreCase));            
         }
 
-        public string PopulateEmployees()
+        public ResultUserUpdate UpdateEmployees()
         {
             StringBuilder sb = new StringBuilder();
-
+            ResultUserUpdate result = new ResultUserUpdate();            
             try
             {
                 connection.Connect(config.Url, LdapConnection.DEFAULT_PORT);
@@ -112,73 +116,98 @@ namespace citr.Services
             }
             catch (Exception ex)
             {
-                sb.Append(ex.ToString());
-                return sb.ToString();
+                result.Errors.Add(ex.ToString());
+                logger.LogError(ex.ToString());
+                return result;
             }
 
             try
             {
-                var result = connection.Search(
-                config.SearchBase,
-                LdapConnection.SCOPE_SUB,
-                config.SearchFilter,
-                new[] { MemberOfAttribute, DisplayNameAttribute, SAMAccountNameAttribute, TitleAttribute, MailAttribute },
-                false
-            ).ToList();
-
-
-                foreach (var user in result)
-                // var user = result.Next();
+                foreach (string orgUnit in config.OrgUnits)
                 {
-                    if (user != null)
-                    {
-                        string account = user.getAttribute(SAMAccountNameAttribute).StringValue;
-                        string fullName = user.getAttribute(DisplayNameAttribute)?.StringValue ?? "";
-                        string email = user.getAttribute(MailAttribute)?.StringValue ?? "";
-                        string position = user.getAttribute(TitleAttribute)?.StringValue ?? "";
-                        if (fullName == "" || email == "" || position == "")
-                        {
-                            sb.AppendLine($"У сотрудника {account} не указан один из атрибутов: DisplayName, должность, email");
-                            continue;
-                        }
+                    var resultSearch = connection.Search(
+                    orgUnit,
+                    LdapConnection.SCOPE_SUB,
+                    config.SearchFilter,
+                    new[] { MemberOfAttribute, DisplayNameAttribute, SAMAccountNameAttribute, TitleAttribute, MailAttribute },
+                    false
+                    ).ToList();
 
-                        if (!employeesRepository.Employees.Any(em => em.Account.Equals(account, comparisonType: StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var user in resultSearch)
+                    {                        
+                        if (user != null)
                         {
+                            result.SearchedAccountsCount++;
+                            string account = user.getAttribute(SAMAccountNameAttribute).StringValue;
+                            string fullName = user.getAttribute(DisplayNameAttribute)?.StringValue ?? "";
+                            string email = user.getAttribute(MailAttribute)?.StringValue ?? "";
+                            string position = user.getAttribute(TitleAttribute)?.StringValue ?? "";
+                            if (fullName == "" || email == "" || position == "")
+                            {
+                                result.NotValidAccountCount++;
+                                result.NotValidAccounts.Add(account);                                
+                                continue;
+                            }
 
-                            Employee employee = new Employee
+                            if (!employeesRepository.Employees.Any(em => em.Account.Equals(account, comparisonType: StringComparison.InvariantCultureIgnoreCase)))
                             {
-                                Account = account,
-                                Email = email,
-                                FullName = fullName,
-                                Position = position
-                            };
-                        
-                            try
-                            {
-                                employeesRepository.SaveEmployee(employee);
+
+                                Employee employee = new Employee
+                                {
+                                    Account = account,
+                                    Email = email,
+                                    FullName = fullName,
+                                    Position = position
+                                };
+
+                                try
+                                {
+                                    employeesRepository.SaveEmployee(employee);
+                                    result.NewUserCount++;
+                                    result.NewEmployees.Add(new EmployeeViewModel(employee));
+                                }
+                                catch (Exception ex)
+                                {
+                                    result.Errors.Add($"Не удалось добавить сотрудника {account}: {ex.ToString()}");
+                                    logger.LogError(ex.ToString());
+                                }
                             }
-                            catch(Exception ex)
+                            else
                             {
-                                sb.AppendLine($"Не удалось добавить сотрудника {account}: {ex.ToString()}");
+                                Employee employee = employeesRepository.Employees.First(e => e.Account == account);
+                                bool updated = false;
+                                if (employee.Email != email)
+                                {
+                                    employee.Email = email;
+                                    updated = true;
+                                }
+                                if (employee.FullName != fullName)
+                                {
+                                    employee.FullName = fullName;
+                                     updated = true;
+                                }
+                                if (employee.Position != position)
+                                {
+                                    employee.Position = position;
+                                    updated = true;
+                                }
+                                if (updated)
+                                {
+                                    result.UpdatedUserCount++;
+                                    result.UpdatedEmployees.Add(new EmployeeViewModel(employee));
+                                }
                             }
-                        }
-                        else
-                        {                            
-                            Employee employee = employeesRepository.Employees.First(e => e.Account == account);
-                            employee.Email = email;
-                            employee.FullName = fullName;
-                            employee.Position = position;                            
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                sb.Append(ex.ToString());
+                result.Errors.Add(ex.ToString());
+                logger.LogError(ex.ToString());
             }
             connection.Disconnect();
-            sb.AppendLine("Загрузка и обновление данных завершены");
-            return sb.ToString();
+            return result;
         }       
     }
 }
