@@ -45,7 +45,7 @@ namespace citr.Services
                 };
 
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/OTRS", model);
-                System.IO.File.WriteAllText(@"d:/temp/test.html", viewHtml);
+                //System.IO.File.WriteAllText(@"d:/temp/test.html", viewHtml);
 
                 await mailService.SendEmailAsync("i.davydenko@pharmasyntez.com", otrsEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);
                 //await mailService.SendEmailAsync(req.Author.Email, otrsEmail, $"Заявка на доступ к {res.Name} [{req.RequestID | res.ResourceID}]", viewHtml);               
@@ -73,7 +73,7 @@ namespace citr.Services
                     Url = $"{baseUrl}/Request/Open/{req.RequestID}"
                 };
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/Approve", model);
-                System.IO.File.WriteAllText($"d:/temp/{approver.FullName.Replace(" ", "_")}.html", viewHtml);
+               // System.IO.File.WriteAllText($"d:/temp/{approver.FullName.Replace(" ", "_")}.html", viewHtml);
                 //await mailService.SendEmailAsync(fromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
                 await mailService.SendEmailAsync(fromEmail, "i.davydenko@pharmasyntez.com", $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
             }           
