@@ -7,11 +7,11 @@ namespace citr.Models
 {
     public interface IRequestRepository
     {
-        IEnumerable<Request> Requests { get; }
+        IQueryable<Request> Requests { get; }
 
         //void SaveRequest(Request request);
 
         //void SaveRequestDetail(RequestDetail rd);
-        
+
     }
 }

@@ -15,11 +15,14 @@ namespace citr.Models
             context = ctx;
         }
 
-        public IEnumerable<Request> Requests =>
+        public IQueryable<Request> Requests =>
             context.Requests
             .Include(r => r.History)
             .Include(r => r.Author)
             .Include(r => r.Details)
+                .ThenInclude(d => d.Resource)
+                .ThenInclude(r=> r.OwnerEmployee)
+             .Include(r => r.Details)
                 .ThenInclude(d => d.Resource)
                 .ThenInclude(r => r.Category)
             .Include(r => r.Details)
@@ -30,35 +33,36 @@ namespace citr.Models
                 .ThenInclude(d => d.ResourceOwner)
             .Include(r => r.Details)
                 .ThenInclude(d => d.Ticket);
-                
-       /* public void SaveRequest(Request request)
-        {
-            if (request.RequestID == 0)
-            {
-                context.Requests.Add(request);
-            }
-            else
-            {
 
-                var fromDb = context.Requests
-                 .Include(r => r.Details)
-                 .Include(r => r.History)
-                 .SingleOrDefault(x => x.RequestID.Equals(request.RequestID));
 
-                fromDb.Comment = request.Comment;
-                fromDb.ChangeDate = request.ChangeDate;
-                fromDb.State = request.State;
-                context.Entry(fromDb).State = EntityState.Modified;
+        /* public void SaveRequest(Request request)
+         {
+             if (request.RequestID == 0)
+             {
+                 context.Requests.Add(request);
+             }
+             else
+             {
 
-                foreach (var d in fromDb.Details)
-                {
-                    context.Entry(d).State = EntityState.Deleted;
-                }
-                fromDb.Details.AddRange(new List<RequestDetail>(request.Details));
-            }
-            context.SaveChanges();
-        }
-        */
+                 var fromDb = context.Requests
+                  .Include(r => r.Details)
+                  .Include(r => r.History)
+                  .SingleOrDefault(x => x.RequestID.Equals(request.RequestID));
+
+                 fromDb.Comment = request.Comment;
+                 fromDb.ChangeDate = request.ChangeDate;
+                 fromDb.State = request.State;
+                 context.Entry(fromDb).State = EntityState.Modified;
+
+                 foreach (var d in fromDb.Details)
+                 {
+                     context.Entry(d).State = EntityState.Deleted;
+                 }
+                 fromDb.Details.AddRange(new List<RequestDetail>(request.Details));
+             }
+             context.SaveChanges();
+         }
+         */
         /*public void SaveRequestDetail(RequestDetail rd)
         {
              var fromDb = context.Requests

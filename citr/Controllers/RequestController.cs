@@ -84,17 +84,6 @@ namespace citr.Controllers
                 .Where(r => r.State == RequestState.Approving && r.Details.Any(d => d.ResourceOwnerID == currEmployee.EmployeeID)));
         }
 
-        /* public IActionResult Create()
-         {
-             ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;
-             return View("Edit", new Request()
-             {
-                 State = RequestState.New,      
-                 Author = ldapService.GetUserEmployee(),
-                 AuthorID = ldapService.GetUserEmployee().EmployeeID
-             });
-         }*/
-
         public IActionResult Create()
         {
             return View("Edit", new RequestViewModel()
@@ -104,31 +93,6 @@ namespace citr.Controllers
                 //AuthorID = ldapService.GetUserEmployee().EmployeeID
             });
         }
-
-        /*public ViewResult Copy(int sourceId)
-        {
-            Request req = repository.Requests.FirstOrDefault(p => p.RequestID == sourceId);
-            Request newReq = new Request()
-            {
-                State = RequestState.New,
-                Author = ldapService.GetUserEmployee(),
-                AuthorID = ldapService.GetUserEmployee().EmployeeID,
-                Comment = req.Comment,
-                Details = new List<RequestDetail>(req.Details.Select(d => new RequestDetail()
-                {
-                    Resource = d.Resource,
-                    ResourceID = d.ResourceID,
-                    ResourceOwner = d.ResourceOwner,
-                    EmployeeAccess = d.EmployeeAccess,
-                    EmployeeAccessID = d.EmployeeAccessID,
-                    ResourceOwnerID = d.Resource.OwnerEmployee.EmployeeID,
-                    RoleID = d.RoleID,    
-                    Role = d.Role
-                }))
-            };
-            ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;
-            return View("Edit", newReq);
-        }*/
 
         public ViewResult Copy(int sourceId)
         {
@@ -154,25 +118,6 @@ namespace citr.Controllers
             //ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;           
             return View("Edit", newReqModel);
         }
-        /*
-                public IActionResult Open(int requestId)
-                {
-                    Request req = repository.Requests.FirstOrDefault(p => p.RequestID == requestId);
-                    Employee currentEmployee = ldapService.GetUserEmployee();
-                    int currentEmployeeId = currentEmployee.EmployeeID;
-                    ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;
-                    if (req.AuthorID == currentEmployee.EmployeeID || req.Details.Any(ra => ra.Resource.OwnerEmployeeID == currentEmployeeId))
-                    {
-                        foreach (RequestDetail rd in req.Details)
-                        {
-                            rd.CanApprove = (req.State == RequestState.Approving && rd.ResourceOwnerID == currentEmployeeId);
-                            rd.CanDelete = req.State == RequestState.New;
-                        }
-                        return View("Edit", req);
-                    }
-                    else
-                        return View("~/Views/Errors/AccessDenied.cshtml");
-                }*/
 
         public IActionResult Open(int requestId)
         {
@@ -193,20 +138,6 @@ namespace citr.Controllers
                 return View("~/Views/Errors/AccessDenied.cshtml");
         }
 
-        /* [HttpPost]
-         public IActionResult Edit2(Request model)
-          {
-              Request req = SaveRequstPost(model);
-              if (req == null)
-              {
-                  return View(model);
-              }
-              else
-              {
-                  return RedirectToAction("ListMyRequests");
-              }
-          }*/
-
         [HttpPost]
         public IActionResult Edit(RequestViewModel model)
         {            
@@ -220,30 +151,6 @@ namespace citr.Controllers
                 return RedirectToAction("ListMyRequests");
             }
         }
-
-
-       /* [HttpPost]
-        public ActionResult AddDetail2(int index, string resourceId, string employeeId, string roleId)
-        {
-            int resId = int.Parse(resourceId);
-            int accessRoleId = int.Parse(roleId);
-            int emplId = int.Parse(employeeId);
-            Resource res = resourcesRepository.Resources.FirstOrDefault(e => e.ResourceID.Equals(resId));
-            Employee empl = employeeesRepository.Employees.FirstOrDefault(e => e.EmployeeID.Equals(emplId));
-            var newObj = new RequestDetail()
-            {
-                ResourceID = resId,
-                Resource = res,
-                ResourceOwnerID = res.OwnerEmployee.EmployeeID,
-                ResourceOwner = res.OwnerEmployee,
-                EmployeeAccess = empl,
-                EmployeeAccessID = emplId,
-                RoleID = accessRoleId,
-                Role = roleRepository.Roles.FirstOrDefault(e => e.ID.Equals(accessRoleId))
-            };
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", index);
-            return PartialView("~/Views/Request/Detail.cshtml", newObj);
-        }*/
 
         [HttpPost]
         public ActionResult AddDetail(int index, string resourceId, string employeeId, string roleId)
@@ -267,27 +174,6 @@ namespace citr.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", index);
             return PartialView("~/Views/Request/Detail.cshtml", newObj);
         }
-
-        /* [HttpPost]
-         public async Task<IActionResult> SendToApprove(Request model)        
-         {
-             /*Request req = SaveRequstPost(model);
-             if (req == null)
-             {
-                 return View("Edit", model);
-             }
-             else
-             {
-                 req.State = RequestState.Approving;
-                 repository.SaveRequest(req);
-                 string mess = $"Заявка <b>{req.RequestID}</b> была отправлена на согласование";                
-                 historyService.AddRow(req, mess);
-                 TempData["message"] = mess;               
-                 await notifService.SendToApprovers(req);                
-                 return RedirectToAction("ListMyRequests");
-             }
-
-         }*/
 
         public async Task<IActionResult> SendToApprove(RequestViewModel model)
         {
@@ -314,35 +200,6 @@ namespace citr.Controllers
             await notifService.SendToOTRSAsync(repository.Requests.FirstOrDefault(r => r.RequestID == 6));
             return RedirectToAction("List");
         }
-
-        /* [HttpPost]
-         public async Task<IActionResult> EndApprove(Request model)
-         {
-             Request req = SaveRequstPost(model);
-             string mess = "";
-             if (req.Details.Any(d => d.ApprovingResult == ResourceApprovingResult.None))
-             {
-                 mess = $"Результаты согласования <b>{req.RequestID}</b> сохранены";               
-             }
-             else
-             {
-                 if (!req.Details.Any(d => d.ApprovingResult == ResourceApprovingResult.Approved))
-                 {
-                     req.State = RequestState.Canceled;
-                     mess = $"Заявке <b>{req.RequestID}</b> было отказано в согласовании";
-                 }
-                 else
-                 {
-                     req.State = RequestState.Approved;
-                     mess = $"Заявка <b>{req.RequestID}</b> согласована всеми участниками";
-                     await notifService.SendToOTRSAsync(req);
-                 }
-                 repository.SaveRequest(req);
-             }               
-             historyService.AddRow(req, mess);
-             TempData["message"] = mess;
-             return RedirectToAction("ListToApprove");         
-         }*/
 
         public async Task<IActionResult> EndApprove(RequestViewModel model)
         {
@@ -373,33 +230,6 @@ namespace citr.Controllers
             return RedirectToAction("ListToApprove");
         }
 
-
-        /*[HttpPost]
-        public IActionResult Approve(string requestId, string commentApproving)
-        {
-            Request req = repository.Requests.First(r => r.RequestID == int.Parse(requestId));
-            req.State = RequestState.Approved;
-            repository.SaveRequest(req);
-            string comment = string.IsNullOrEmpty(commentApproving) ? "" : $". Комментарий: {commentApproving}";
-            string mess = $"Заявка {req.RequestID} была согласована{comment}";
-            historyService.AddRow(req, mess);
-            TempData["message"] = mess;
-            return RedirectToAction("List");
-        }
-
-        [HttpPost]
-        public IActionResult NotApprove(string requestId, string commentApproving)
-        {
-            Request req = repository.Requests.First(r => r.RequestID == int.Parse(requestId));
-            req.State = RequestState.NotApproved;
-            repository.SaveRequest(req);
-            string comment = string.IsNullOrEmpty(commentApproving) ? "" : $". Комментарий: {commentApproving}";
-            string mess = $"Заявке {req.RequestID} было отказано в согласовании{comment}";
-            historyService.AddRow(req, mess);
-            TempData["message"] = mess;
-            return RedirectToAction("List");
-        }*/
-
         private Request SaveRequstPost(RequestViewModel model)
         {
             var details = model.Details?.Where(c => !c.IsDeleted).ToList();
@@ -422,11 +252,13 @@ namespace citr.Controllers
                 foreach (var detModel in details)
                 {
                     var detail = context.RequestDetail.Find(detModel.ID);
+                    var resource = resourcesRepository.Resources.FirstOrDefault(r => r.ResourceID == detModel.ResourceID);                    
                     if (detail == null)
                         detail = new RequestDetail();
                     detail.ApprovingResult = detModel.ApprovingResult;
                     detail.EmployeeAccessID = detModel.EmployeeAccessID;
                     detail.ResourceID = detModel.ResourceID;
+                    //detail.Resource = detModel.Resource;
                     detail.ResourceOwnerID = detModel.ResourceOwnerID;
                     detail.RoleID = detModel.RoleID;
                     detail.TicketID = detModel.TicketID;
@@ -442,7 +274,7 @@ namespace citr.Controllers
                     mess = $"Заявка <b>{request.RequestID}</b> была создана";
                 //Request reqSaved = repository.Requests.First(r => r.RequestID.Equals(model.RequestID));
                 historyService.AddRow(request, mess);
-                TempData["message"] = mess;
+                TempData["message"] = mess;                
                 return request;
             }
             else
