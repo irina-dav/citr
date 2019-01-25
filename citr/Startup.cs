@@ -18,6 +18,7 @@ using citr.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Logging;
 using Serilog.Extensions.Logging;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace citr
 {
@@ -90,14 +91,17 @@ namespace citr
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddFile(Configuration.GetSection("Logging"));
-
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             app.UseDeveloperExceptionPage();
             app.UseStatusCodePages();
             app.UseStaticFiles();
             app.UseSession();
             app.UseAuthentication();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseCookiePolicy();
 
             app.UseMvc(routes =>

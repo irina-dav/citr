@@ -5,6 +5,7 @@
     <AssemblyName>citr</AssemblyName>
     <RootNamespace>citr</RootNamespace>
     <UserSecretsId>4e326263-5374-4f35-9453-1883734f4243</UserSecretsId>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
   <ItemGroup>
