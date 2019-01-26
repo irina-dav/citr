@@ -8,7 +8,7 @@
             <h2>Вход в систему</h2>
             <p>Укажите свой логин и пароль</p>
         </div>
-        <div class="text-danger" asp-validation-summary="All"></div>
+        <div class="alert-danger list-unstyled error rounded" asp-validation-summary="All"></div>
         <form id="Login" asp-action="Login" method="post">
             <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
             <div class="form-group">
@@ -17,7 +17,7 @@
             <div class="form-group">
                 <input type="password" asp-for="Password" class="form-control" id="inputPassword" placeholder="Пароль">
             </div>
-            <button type="submit" class="btn btn-primary">Вход</button>
+            <button type="submit" class="btn btn-success">Вход</button>
         </form>
     </div>    
 </div>

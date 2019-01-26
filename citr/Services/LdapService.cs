@@ -82,7 +82,7 @@ namespace citr.Services
             }
             catch
             {
-                throw new Exception("Login failed.");
+                throw new Exception("Введён неправильный логин или пароль");
             }
             connection.Disconnect();
             return null;

@@ -15,7 +15,10 @@
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item small" asp-action="ListMyRequests" asp-controller="Request">Заявки от меня</a>
                     <a class="dropdown-item small" asp-action="ListToApprove" asp-controller="Request">Заявки мне на согласование</a>
-                    <a class="dropdown-item small" asp-action="ListAll" asp-controller="Request">Все заявки</a>
+                    @if (User.IsInRole("Admins"))
+                    {
+                        <a class="dropdown-item small" asp-action="ListAll" asp-controller="Request">Все заявки</a>
+                    }
                 </div>
             </li>
             @if (User.IsInRole("Admins"))
@@ -50,7 +53,7 @@
     @if (User?.Identity?.IsAuthenticated ?? false)
     {
         <span class="small text-right mr-2">@LdapService.GetUserDisplayInfo()<br />@User.Identity.Name</span>
-        <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-secondary">Выход</a>
+        <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-primary">Выход</a>
     }
     else
     {

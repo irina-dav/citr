@@ -38,9 +38,6 @@ namespace citr.Controllers
             return View("Login");
         }
 
-        
-
-
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
