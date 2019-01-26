@@ -61,6 +61,16 @@ namespace citr.Controllers
         }
 
         [HttpPost]
+        public IActionResult MoveCategory(int categoryId, int newParentId)
+        {
+            ResourceCategory cat = repository.Categories.FirstOrDefault(c => c.ID == categoryId);
+            cat.ParentCategoryID = newParentId;
+            repository.SaveCategory(cat);
+            TempData["Success"] = $"Категория <strong>{cat.Name}</strong> перемещена.";
+            return RedirectToAction(nameof(Index), new { categoryId = cat.ID });
+        }
+
+        [HttpPost]
         public IActionResult DeleteCategory(int categoryId)
         {
             ResourceCategory categoryToDel = repository.Categories.First(c => c.ID == categoryId);

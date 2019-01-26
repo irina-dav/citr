@@ -37,7 +37,7 @@
 </div>
            
 <script type="text/javascript">
-    
+
     var jsonData = @Html.Raw(@ViewBag.Json);
     var selectedCategoryName = "";
     $('#jstree-tree')
@@ -59,17 +59,61 @@
                 },
                 data: jsonData,
                 multiple: false,
-                check_callback: true,
+                "check_callback": function (op, node, par, pos, more) {
+                    if ((op === "move_node" || op === "copy_node") && node.type && node.type == "root") {
+                        return false;
+                    }
+                    if ((op === "move_node" || op === "copy_node") && more && more.core) {
+                        if (par.id == '#') {
+                            return false;
+                        };
+                        $.confirm({
+                            title: 'Перемещение категории',
+                            content: 'Вы действительно хотите переместить <b>' + node.text + '</b> в категорию <b>' + par.text + '</b>?',
+                            boxWidth: '500px',
+                            useBootstrap: false,
+                            buttons: {
+                                Переместить: function () {
+                                    post_to_url('@Url.Action("MoveCategory", "ResourceCategory")', {
+                                        categoryId: node.id,
+                                        newParentId: par.id
+                                    }, 'post');
+                                },
+                                Отмена: function () { },
+                            }
+                        });
+                        return false;
+                    }                    
+                    return true;
+                },
             },
             checkbox: {
                 keep_selected_style: false,
                 three_state: false
             },
-            plugins: ["checkbox"],            
+            plugins: ["checkbox", "dnd"],
         }).bind("ready.jstree", function (event, data) {
             $(this).jstree("open_all");
         });
 
+    function post_to_url(path, params, method) {
+        method = method || "post";
+        var form = document.createElement("form");
+        form.setAttribute("method", method);
+        form.setAttribute("action", path);
+        for (var key in params) {
+            if (params.hasOwnProperty(key)) {
+                var hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", key);
+                hiddenField.setAttribute("value", params[key]);
+
+                form.appendChild(hiddenField);
+            }
+        }
+        document.body.appendChild(form);
+        form.submit();
+    }
     $('#addNode').click(function (e) {
         e.preventDefault();
         if ($('#parentCategoryId').val() == "") {
@@ -79,7 +123,7 @@
                 title: 'Выберите родительскую категорию',
                 content: "Для добавления новой категории необходимо выбрать родительскую в иерархии.",
                 theme: 'bootstrap',
-            });           
+            });
         }
         else {
             $("#modalAddNode").modal("show");
@@ -87,7 +131,7 @@
     });
 
     $('#editNode').click(function (e) {
-        e.preventDefault();       
+        e.preventDefault();
         if ($('#currentCategoryId').val() == "") {
             $.alert({
                 boxWidth: '500px',
@@ -103,10 +147,10 @@
     });
 
     $('#deleteNode').click(function (e) {
-     
-        e.preventDefault();  
+
+        e.preventDefault();
         var tree = $('#jstree-tree').jstree();
-        var selectedNodeId = tree.get_selected();        
+        var selectedNodeId = tree.get_selected();
         var node = tree.get_node(selectedNodeId);
         if (tree.is_parent(node)) {
             $.alert({
@@ -117,7 +161,7 @@
             });
             return;
         }
-       
+
         if (selectedCategoryName == "") {
             $.alert({
                 boxWidth: '500px',
