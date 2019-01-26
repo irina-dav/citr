@@ -3,10 +3,6 @@
     ViewBag.Title = "Запрос на доступ к информационным ресурсам";
     Layout = "_Layout";
 }
-@inject IEmployeeRepository EmployeeRepository
-@{
-    var empls = EmployeeRepository.Employees;
-}
 @inject ILdapService ldapService;
 <div class="container col-10">
 <div class="card text-left mx-auto">
@@ -45,15 +41,14 @@
                     <div class="form-group row">
                         <label class="col-3 col-form-label">1. Выберите сотрудника</label>
                         <div class="col-9">
-                            <select id="selectEmployee" class="form-control js-example-basic-single select2-single" asp-items="@(new SelectList(empls, "EmployeeID", "FullName"))">
-                                
+                            <select id="selectEmployee" class="form-control js-example-basic-single select2-single js-data-employees-ajax">                                
                             </select>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-3 col-form-label">2. Выберите ресурс</label>
                         <div class="col-9">
-                            <select id="selectResource" class="form-control js-example-basic-single js-data-example-ajax">
+                            <select id="selectResource" class="form-control js-example-basic-single js-data-resources-ajax">
                                 <option value="" disabled selected>Ресурс</option>
                             </select>
                         </div>
@@ -137,10 +132,27 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('#selectEmployee').val('@Html.Raw(@ldapService.GetUserEmployee().EmployeeID)');
-        $('#selectEmployee').trigger('change');
+        $('.js-data-employees-ajax').select2({
+            ajax: {
+                url: '@Url.Action("GetEmployeesJson", "Employee")',
+                type: 'GET',
+                data: function (params) {
+                    var query = {
+                        search: params.term
+                    }
+                    return query;
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });    
+        var newOption = new Option('@Html.Raw(@ldapService.GetUserEmployee().FullName)', '@Html.Raw(@ldapService.GetUserEmployee().EmployeeID)', true, true);
+        $(".js-data-employees-ajax").append(newOption).trigger('change');
 
-        $('.js-data-example-ajax').select2({
+        $('.js-data-resources-ajax').select2({
             ajax: {
                 url: '@Url.Action("GetResourcesJson", "Resource")',
                 type: 'GET',

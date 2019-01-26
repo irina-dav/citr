@@ -155,7 +155,7 @@ namespace citr.Controllers
                 search = "";
             JsonResult res = Json(new EmptyResult());
             List<object> results = new List<object>();
-            foreach (var g in repository.Resources.Where(r => r.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).GroupBy(r => r.Category))
+            foreach (var g in repository.Resources.OrderBy(r => r.Name).Where(r => r.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).GroupBy(r => r.Category))
             {
                 results.Add(new { text = g.Key.Name, children = g.ToList().Select(r => new { id = r.ResourceID, text = r.Name }) });
             }

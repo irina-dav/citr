@@ -12,7 +12,6 @@ using System.Linq.Dynamic.Core;
 
 namespace citr.Controllers
 {
-    [Authorize(Roles = "Admins")]
     public class EmployeeController : Controller
     {
         private IEmployeeRepository repository;
@@ -29,11 +28,13 @@ namespace citr.Controllers
             return Json(!repository.Employees.Any( x => x.Account.Equals(Account, comparisonType: StringComparison.InvariantCultureIgnoreCase) && x.EmployeeID != EmployeeID));
         }
 
+        [Authorize(Roles = "Admins")]
         public ViewResult List()
         {
             return View(repository.Employees);
         }
 
+        [Authorize(Roles = "Admins")]
         public ViewResult Edit(int employeeId)
         {
             Employee empl = repository.Employees.FirstOrDefault(p => p.EmployeeID == employeeId);
@@ -48,6 +49,7 @@ namespace citr.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         public IActionResult Edit(EmployeeViewModel model)
         {
@@ -79,11 +81,13 @@ namespace citr.Controllers
             }
         }
 
+        [Authorize(Roles = "Admins")]
         public ViewResult Create()
         {            
             return View("Edit", new EmployeeViewModel());
         }
 
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         public IActionResult Delete(int employeeId)
         {
@@ -113,17 +117,20 @@ namespace citr.Controllers
             return RedirectToAction(nameof(List));
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult GetEmployeesJson(string search)
         {
             if (search == null)
                 search = "";
             var results = repository.Employees.Where(em => em.FullName.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(em => em.FullName)
                 .Select(em => new { id = em.EmployeeID, text = em.FullName });            
             return Json(results);            
         }
 
-       [HttpPost]
+        [Authorize]
+        [HttpPost]
         public IActionResult LoadData()
         {
             try
