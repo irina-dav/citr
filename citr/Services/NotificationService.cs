@@ -9,29 +9,27 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace citr.Services
 {
     public class NotificationService
     {
         private readonly IMailService mailService;
-        private readonly IConfiguration configuration;
+        private readonly MailConfig config;
         private readonly IViewRenderService viewRenderService;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public NotificationService(IMailService mailService, IConfiguration configuration, IViewRenderService viewRenderService, IHttpContextAccessor httpContextAccessor)
+        public NotificationService(IMailService mailService, IOptions<MailConfig> config, IViewRenderService viewRenderService, IHttpContextAccessor httpContextAccessor)
         {
             this.mailService = mailService;
-            this.configuration = configuration;
+            this.config = config.Value;
             this.viewRenderService = viewRenderService;
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task SendToOTRSAsync(Request req)
-        {
-            string baseUrl = configuration.GetSection("AppSettings")["BaseUrl"].ToString();
-            //string otrsEmail = configuration.GetSection("AppSettings")["OTRSEmail"].ToString();
-            string otrsEmail = "i.davydenko@pharmasyntez.com";
+        public async Task SendToOTRSAsync(Request req, string baseUrl)
+        {            
             foreach (var resGroup in req.Details.Where(d => d.ApprovingResult == ResourceApprovingResult.Approved).GroupBy(d => d.Resource))
             {
                 Resource res = resGroup.Key;
@@ -45,25 +43,17 @@ namespace citr.Services
                 };
 
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/OTRS", model);
-                //System.IO.File.WriteAllText(@"d:/temp/test.html", viewHtml);
-
-                await mailService.SendEmailAsync("i.davydenko@pharmasyntez.com", otrsEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);
-                //await mailService.SendEmailAsync(req.Author.Email, otrsEmail, $"Заявка на доступ к {res.Name} [{req.RequestID | res.ResourceID}]", viewHtml);               
+                // req.Author.Email
+                await mailService.SendEmailAsync("i.davydenko@pharmasyntez.com", config.OTRSEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);         
             }
         }
-
         
-        public async Task SendToApprovers(Request req)
+        public async Task SendToApprovers(Request req, string baseUrl)
         {
-            //string fromEmail = configuration.GetSection("mail")["Email"].ToString();
-            string fromEmail = "citr@pharmasyntez.com";
-            string baseUrl = configuration.GetSection("AppSettings")["BaseUrl"].ToString();
-
             foreach (var g in req.Details.GroupBy(d => d.Resource.OwnerEmployee))
             {
                 Employee approver = g.Key;
-                var details = g.ToList();
-
+                var details = g.ToList();               
                 EmailViewModel model = new EmailViewModel()
                 {
                     Recipient = approver,
@@ -73,9 +63,8 @@ namespace citr.Services
                     Url = $"{baseUrl}/Request/Open/{req.RequestID}"
                 };
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/Approve", model);
-               // System.IO.File.WriteAllText($"d:/temp/{approver.FullName.Replace(" ", "_")}.html", viewHtml);
-                //await mailService.SendEmailAsync(fromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
-                await mailService.SendEmailAsync(fromEmail, "i.davydenko@pharmasyntez.com", $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
+                //approver.Email
+                await mailService.SendEmailAsync(config.FromEmail, "i.davydenko@pharmasyntez.com", $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
             }           
         }
     }

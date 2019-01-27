@@ -46,14 +46,14 @@
             <td>
                 <div>
                     Уважаемый(ая) @Model.Recipient.FullName,
-                    <br /> вам необходимо согласовать заявку на предоставление доступа к информационным ресурсам:
+                    <br /> вам необходимо согласовать заявку на <b>предоставление доступа</b> к информационным ресурсам:
                     <ul>
                         @foreach (var ra in Model.Resources)
                         {
                             <li>@ra.Name</li>
                         }
                     </ul>
-                    для сотрудников:
+                    <b>для сотрудников</b>:
                     <ol>
                         @foreach (RequestDetail detail in Model.Details)
                         {
@@ -61,10 +61,10 @@
                         }
                     </ol>
                 </div>
-                <p>Комментарий: @Model.Request.Comment</p>
+                <p><b>Комментарий</b>: @Model.Request.Comment</p>
                 <p>
                     Для согласования перейдите по ссылке:
-                    <a href="@Model.Url">@Model.Request.RequestID</a>
+                    <a href="@Model.Url">Заявка @Model.Request.RequestID</a>
                 </p>                
                 <p class='comment'>Отвечать на данное письмо не требуется</p>
             </td>
