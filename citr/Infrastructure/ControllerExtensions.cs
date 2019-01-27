@@ -27,6 +27,11 @@ namespace citr.Infrastructure
                     );
                 }
 
+        public static string BaseUrl(this Controller controller)
+        {
+            return $"{controller.Request.Scheme}://{controller.Request.Host}";
+        }
+
         public static async Task<string> RenderViewAsync<TModel>(this Controller controller, string viewName, TModel model, bool partial = false)
         {
             if (string.IsNullOrEmpty(viewName))

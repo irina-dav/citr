@@ -70,7 +70,7 @@ namespace citr.Controllers
         public ViewResult ListMyRequests()
         {
             Employee currEmployee = ldapService.GetUserEmployee();
-            ViewBag.Title = "Мои заявки";
+            ViewBag.Title = "Мои заявки";           
             var requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();       
             return View("List", requests);
         }
@@ -189,15 +189,15 @@ namespace citr.Controllers
                 context.SaveChanges();
                 string mess = $"Заявка <b>{req.RequestID}</b> была отправлена на согласование";                
                 historyService.AddRow(req, mess);
-                TempData["message"] = mess;               
-                await notifService.SendToApprovers(req);                
+                TempData["message"] = mess;                
+                await notifService.SendToApprovers(req, this.BaseUrl());                
                 return RedirectToAction("ListMyRequests");
             }          
-        }
+        }        
 
         public async Task<IActionResult> TestAsync()
         {
-            await notifService.SendToOTRSAsync(repository.Requests.FirstOrDefault(r => r.RequestID == 6));
+            await notifService.SendToOTRSAsync(repository.Requests.FirstOrDefault(r => r.RequestID == 6), this.BaseUrl());
             return RedirectToAction("List");
         }
 
@@ -220,7 +220,7 @@ namespace citr.Controllers
                 {
                     req.State = RequestState.Approved;
                     mess = $"Заявка <b>{req.RequestID}</b> согласована всеми участниками";
-                    await notifService.SendToOTRSAsync(req);
+                    await notifService.SendToOTRSAsync(req, this.BaseUrl());
                 }
                 context.SaveChanges();
                 //repository.SaveRequest(req);
