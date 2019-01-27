@@ -34,6 +34,11 @@ namespace citr.Models
             return dbEntry;
         }
 
+        public Resource GetResource(int id)
+        {
+            return Resources.SingleOrDefault(r => r.ResourceID == id);
+        }
+
         public void SaveResource(Resource resource)
         {
             if (resource.ResourceID == 0)

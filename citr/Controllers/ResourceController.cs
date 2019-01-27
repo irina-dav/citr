@@ -113,11 +113,29 @@ namespace citr.Controllers
         [HttpPost]
         public IActionResult Delete(int resourceId)
         {
-            Resource deletedResource = repository.DeleteResource(resourceId);
-            if (deletedResource != null)
+            Resource resourceToDel = repository.GetResource(resourceId);
+            try
             {
-                TempData["message"] = $"<b>{deletedResource.Name}</b> был удалён";
+                repository.DeleteResource(resourceId);
             }
+            catch (DbUpdateException ex)
+            {
+                var innerException = ex.InnerException.InnerException as MySql.Data.MySqlClient.MySqlException;
+                if (innerException != null && innerException.Number == 1451)
+                {
+                    TempData["Error"] = $"Не удалось удалить ресурс <b>{resourceToDel.Name}</b>: на него есть ссылки в других объектах";
+                    return RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            TempData["message"] = $"<b>{resourceToDel.Name}</b> успешно удалён";
             return RedirectToAction("List");
         }
 

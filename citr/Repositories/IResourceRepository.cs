@@ -12,5 +12,7 @@ namespace citr.Models
         void SaveResource(Resource resource);
 
         Resource DeleteResource(int resourceId);
+
+        Resource GetResource(int id);
     }
 }

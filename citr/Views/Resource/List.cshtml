@@ -34,7 +34,8 @@
                             <a asp-action="Edit" class="btn  btn-sm rounded-0 btn-list-action btn-outline-success p-0 m-0" asp-route-resourceId="@res.ResourceID">Открыть</a>
                             <a asp-action="Copy" class="btn  btn-sm rounded-0 btn-list-action btn-outline-info p-0 m-0" asp-route-sourceId="@res.ResourceID">Копировать</a>
                             <input type="hidden" name="ResourceID" value="@res.ResourceID" />
-                            <button type="submit" class="btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0">Удалить</button>
+                            <input type="hidden" name="Name" value="@res.Name" />
+                            <input  type="submit" class="btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0 deleteResource" value="Удалить" />
                         </form>
                     </td>
                 </tr>
@@ -43,3 +44,25 @@
     </div>
 
 </div>
+
+<script>
+    $('.deleteResource').click(function (e) {
+        e.preventDefault();
+        var form = $(this).parent("form");
+        resName = form.children("input[name='Name']").val();
+        $.confirm({
+            title: 'Удаление ресурса',
+            content: 'Вы действительно хотите удалить ресурс <b>' + resName + '</b>?<br>Удалить будет возможно только ресурс, на которого нет ссылок.',
+            boxWidth: '500px',
+            useBootstrap: false,
+            buttons: {
+                Удалить: function () {
+                    form.submit();
+                },
+                Отмена: function () {                  
+                },
+            }
+        });
+    });
+
+</script>
