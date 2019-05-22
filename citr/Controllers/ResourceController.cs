@@ -179,6 +179,14 @@ namespace citr.Controllers
             }
             return Json(results);
         }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetResourcesByCategoryJson(int categoryId)
+        {
+            var results = repository.Resources.Where(r => r.Category.ID == categoryId).OrderBy(r => r.Name).Select(r => new { id = r.ResourceID, text = r.Name });           
+            return Json(results);
+        }
     }
 }
 

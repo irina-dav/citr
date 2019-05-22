@@ -98,5 +98,17 @@ namespace citr.Controllers
             TempData["Success"] = $"Категория <strong>{categoryToDel.Name}</strong> успешно удалена.";
             return RedirectToAction(nameof(Index));
         }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetCategoriesJson(string search)
+        {
+            if (search == null)
+                search = "";
+            var results = repository.Categories
+                .Where(с => с.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(c => c.Name).Select(c => new { id = c.ID, text = c.Name });
+            return Json(results);
+        }
     }
 }

@@ -5,132 +5,153 @@
 }
 @inject ILdapService ldapService;
 <div class="container col-10">
-<div class="card text-left mx-auto">
-    <form method="post" novalidate>
-        <div class="card-header">
-            <h4>Заявка на доступ к информационному ресурсу</h4>
-            <div class="form-group m-0 p-0">
-                <label class="font-weight-bold">Номер заявки:</label>
-                @{var number = (Model.RequestID == 0) ? "Будет выдан после сохранения" : Model.RequestID.ToString();}
-                <label class="col-6">@number</label>    
-                <input hidden asp-for="RequestID" class="form-control" />
-            </div>
-            <div class="form-group m-0 p-0">
-                <label class="font-weight-bold">Статус заявки:</label>
-                <label class="col-6">@Model.State.GetDisplayName()</label>
-            </div>
-            <div class="form-group m-0 p-0">
-                <label class="font-weight-bold">Автор заявки:</label>
-                <label class="col-6">@Model.Author.FullName</label>
-            </div>           
-        </div>
-        <div class="card-body">
-            @if (Model.State == RequestState.Approving)
-            {
-                <div class="alert alert-warning" role="alert">
-                    Напротив каждой строки поставьте отметку о согласовании, после чего нажмите кнопку <strong>Завершить</strong> в нижней части формы.
+    <div class="card text-left mx-auto">
+        <form method="post" novalidate>
+            <div class="card-header">
+                <h4>Заявка на доступ к информационному ресурсу</h4>
+                <div class="form-group m-0 p-0">
+                    <label class="font-weight-bold">Номер заявки:</label>
+                    @{var number = (Model.RequestID == 0) ? "Будет выдан после сохранения" : Model.RequestID.ToString();}
+                    <label class="col-6">@number</label>
+                    <input hidden asp-for="RequestID" class="form-control" />
                 </div>
-                <textarea hidden name="commentApproving" class="form-control h-auto" placeholder="Комментарий, замечание (не обязательно) ... "></textarea>
-            }
-
-            <div class="form-group form-group-sm">
-                
-                <div><span asp-validation-for="Details" class="text-danger"></span></div>
-                @if (Model.State == RequestState.New)
-                {
-                    <div class="form-group row">
-                        <label class="col-3 col-form-label">1. Выберите сотрудника</label>
-                        <div class="col-9">
-                            <select id="selectEmployee" class="form-control js-example-basic-single select2-single js-data-employees-ajax">                                
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-3 col-form-label">2. Выберите ресурс</label>
-                        <div class="col-9">
-                            <select id="selectResource" class="form-control js-example-basic-single js-data-resources-ajax">
-                                <option value="" disabled selected>Ресурс</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-3 col-form-label">3. Выберите роль (уровень доступа)</label>
-                        <div class="col-9">
-                            <select id="selectRole" class="form-control js-example-basic-single select2-single">
-                                <option value="" disabled selected>Роль</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-3 col-form-label">4. Нажмите кнопку</label>
-                        <div class="col-9">
-                            <button type="button" class="btn btn-success rounded-0 btn-sm" id="addDetail"
-                                    data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Заполните все поля, расположенные выше">
-                                Добавить <span class="fa fa-plus-circle"></span>
-                            </button>
-                        </div>
-                    </div>
-                }
-                <table id="tblDetails" class="table table-sm small table-success mt-2 table-bordered">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">Доступ для сотрудника</th>
-                            <th style="width: 20%;">Ресурс</th>
-                            <th style="width: 12%;">Роль</th>
-                            <th style="width: 15%;">Владелец ресурса</th>
-                            <th style="width: 12%;">Категория ресурса</th>
-                            <th style="width: 7%;">Состояние</th>
-                            <th style="width: 13%;" class="text-right">Заявка OTRS</th>
-                            </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.Details != null)
-                        {
-                            for (int i = 0; i < Model.Details.Count; i++)
-                            {
-                                var vd = new ViewDataDictionary(ViewData);
-                                vd.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", i);
-                                <partial name="Detail" model=@Model.Details[i] view-data=vd />
-                            }
-                        }
-                    </tbody>
-                </table>
+                <div class="form-group m-0 p-0">
+                    <label class="font-weight-bold">Статус заявки:</label>
+                    <label class="col-6">@Model.State.GetDisplayName()</label>
+                </div>
+                <div class="form-group m-0 p-0">
+                    <label class="font-weight-bold">Автор заявки:</label>
+                    <label class="col-6">@Model.Author.FullName</label>
+                </div>
             </div>
-
-            <div class="form-group form-group-sm">
-                <label asp-for="Comment" class="font-weight-bold"></label>
-                <div><span asp-validation-for="Comment" class="text-danger"></span></div>
-                @if (Model.State == RequestState.New)
-                {
-                    <textarea asp-for="Comment" class="form-control"></textarea>
-                }
-                else
-                {
-                    <textarea asp-for="Comment" class="form-control" readonly></textarea>
-                }
-            </div>
-            <div class="text-center">
-                @if (Model.State == RequestState.New)
-                {
-                    <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary rounded-0 " />
-                    <input type="submit" name="response" value="Отправить" formaction=@Url.Action("SendToApprove") formmethod="post" class="btn btn-outline-success rounded-0 " />
-                }
+            <div class="card-body">
                 @if (Model.State == RequestState.Approving)
                 {
-                    <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-outline-primary rounded-0" />
+                    <div class="alert alert-warning" role="alert">
+                        Напротив каждой строки поставьте отметку о согласовании, после чего нажмите кнопку <strong>Завершить</strong> в нижней части формы.
+                    </div>
+                    <textarea hidden name="commentApproving" class="form-control h-auto" placeholder="Комментарий, замечание (не обязательно) ... "></textarea>
                 }
-                <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary rounded-0">Отмена</a>
-            </div>
+                <div class="form-group form-group-sm">
+                    <div><span asp-validation-for="Details" class="text-danger"></span></div>
+                    @if (Model.State == RequestState.New)
+                    {
+                        <div class="form-group row">
+                            <label class="col-3 col-form-label">1. Выберите сотрудника</label>
+                            <div class="col-9">
+                                <select id="selectEmployee" class="form-control js-example-basic-single select2-single js-data-employees-ajax"></select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-3 col-form-label">2. Выберите категорию и ресурс</label>
+                            <div class="col-4">
+                                <select id="selectCategory" class="form-control js-example-basic-single select2-single js-data-categories-ajax">
+                                    <option value="" disabled selected>Категория ресурса</option>
+                                </select>
+                            </div>
 
-        </div>
-        <div class="card-footer text-muted">
-            <partial name="History" model="@Model.History" />
-        </div>
-    </form>
+                            <div class="col-5">
+                                <select disabled id="selectResource" class="form-control js-example-basic-single select2-single">
+                                    <option value="" disabled selected>Ресурс</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-3 col-form-label">3. Выберите роль (уровень доступа)</label>
+                            <div class="col-9">
+                                <select disabled id="selectRole" class="form-control js-example-basic-single select2-single">
+                                    <option value="" disabled selected>Роль</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-3 col-form-label">4. Нажмите кнопку</label>
+                            <div class="col-9">
+                                <button type="button" class="btn btn-success rounded-0 btn-sm" id="addDetail"
+                                        data-container="body" data-trigger="manual" data-toggle="popover" data-placement="bottom" data-content="Заполните все поля, расположенные выше">
+                                    Добавить <span class="fa fa-plus-circle"></span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    <table id="tblDetails" class="table table-sm small table-success mt-2 table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">Доступ для сотрудника</th>
+                                <th style="width: 20%;">Ресурс</th>
+                                <th style="width: 12%;">Роль</th>
+                                <th style="width: 15%;">Владелец ресурса</th>
+                                <th style="width: 12%;">Категория ресурса</th>
+                                <th style="width: 7%;">Состояние</th>
+                                <th style="width: 13%;" class="text-right">Заявка OTRS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Details != null)
+                            {
+                                for (int i = 0; i < Model.Details.Count; i++)
+                                {
+                                    var vd = new ViewDataDictionary(ViewData);
+                                    vd.TemplateInfo.HtmlFieldPrefix = string.Format("Details[{0}]", i);
+                                    <partial name="Detail" model=@Model.Details[i] view-data=vd />
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-group form-group-sm">
+                    <label asp-for="Comment" class="font-weight-bold"></label>
+                    <div><span asp-validation-for="Comment" class="text-danger"></span></div>
+                    @if (Model.State == RequestState.New)
+                    {
+                        <textarea asp-for="Comment" class="form-control"></textarea>
+                    }
+                    else
+                    {
+                        <textarea asp-for="Comment" class="form-control" readonly></textarea>
+                    }
+                </div>
+                <div class="text-center">
+                    @if (Model.State == RequestState.New)
+                    {
+                        <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary rounded-0 " />
+                        <input type="submit" name="response" value="Отправить" formaction=@Url.Action("SendToApprove") formmethod="post" class="btn btn-outline-success rounded-0 " />
+                    }
+                    @if (Model.State == RequestState.Approving)
+                    {
+                        <input type="submit" name="response" value="Завершить" formaction=@Url.Action("EndApprove") formmethod="post" class="btn btn-outline-primary rounded-0" />
+                    }
+                    <a onClick="history.go(-1); return false;" class="btn btn-outline-secondary rounded-0">Отмена</a>
+                </div>
+
+            </div>
+            <div class="card-footer text-muted">
+                <partial name="History" model="@Model.History" />
+            </div>
+        </form>
     </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('.js-data-categories-ajax').select2({
+            ajax: {
+                url: '@Url.Action("GetCategoriesJson", "ResourceCategory")',
+                type: 'GET',
+                data: function (params) {
+                    var query = {
+                        search: params.term
+                    }
+                    return query;
+                },
+                processResults: function(data) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
 
         $('.js-data-employees-ajax').select2({
             ajax: {
@@ -148,27 +169,38 @@
                     };
                 }
             }
-        });    
+        });
+
         var newOption = new Option('@Html.Raw(@ldapService.GetUserEmployee().FullName)', '@Html.Raw(@ldapService.GetUserEmployee().EmployeeID)', true, true);
         $(".js-data-employees-ajax").append(newOption).trigger('change');
 
-        $('.js-data-resources-ajax').select2({
-            ajax: {
-                url: '@Url.Action("GetResourcesJson", "Resource")',
-                type: 'GET',
-                function(params) {
-                    var query = {
-                        search: params.term
+
+        $('#selectCategory').change(function () {
+        var selectedCategory = $("#selectCategory").val();
+        var selectResource = $('#selectResource');
+        selectResource.empty();
+            if (selectedCategory != null && selectedCategory != '') {
+                $.getJSON('@Url.Action("GetResourcesByCategoryJson", "Resource")', { categoryId: selectedCategory }, function (resources) {
+                    if (resources != null && !jQuery.isEmptyObject(resources)) {
+                        selectResource.removeAttr('disabled');
+                        selectResource.append($('<option/>', {
+                            value: null,
+                            text: ""
+                        }));
+                        $.each(resources, function (index, res) {
+                            selectResource.append($('<option/>', {
+                                value: res.id,
+                                text: res.text
+                            }));
+                        });
                     }
-                    return query;
-                },
-                processResults: function (data) {
-                    return {
-                        results: data
+                    else {
+                        selectResource.attr('disabled', 'disabled');
                     };
-                }
-            }
+                });
+             };
         });
+
 
     $('#selectResource').change(function () {
         var selectedResource = $("#selectResource").val();
@@ -182,12 +214,16 @@
                                 text: ""
                             }));
                     $.each(roles, function (index, role) {
+                        selectRole.removeAttr('disabled');
                         selectRole.append($('<option/>', {
                                     value: role.id,
                             text: role.name
                                 }));
                             });
-                        };
+                }
+                else {
+                    selectRole.attr('disabled', 'disabled');
+                };
                     });
                 }
             });
@@ -226,5 +262,6 @@
         $('.input-group').attr('hidden', 'hidden');
     }
 
-});
+    });
+
 </script>
