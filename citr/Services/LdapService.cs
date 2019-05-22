@@ -173,8 +173,10 @@ namespace citr.Services
                                 }
                             }
                             else
-                            {
-                                Employee employee = employeesRepository.Employees.First(e => e.Account == account);
+                            {                                
+                                Employee employee = employeesRepository.Employees.FirstOrDefault(e => e.Account == account);
+                                if (employee == null)
+                                    continue;
                                 bool updated = false;
                                 if (employee.Email != email)
                                 {
