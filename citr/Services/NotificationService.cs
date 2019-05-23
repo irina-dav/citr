@@ -43,8 +43,7 @@ namespace citr.Services
                 };
 
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/OTRS", model);
-                // req.Author.Email
-                await mailService.SendEmailAsync("i.davydenko@pharmasyntez.com", config.OTRSEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);         
+                await mailService.SendEmailAsync(req.Author.Email, config.OTRSEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);         
             }
         }
         
@@ -64,7 +63,7 @@ namespace citr.Services
                 };
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/Approve", model);
                 //approver.Email
-                await mailService.SendEmailAsync(config.FromEmail, "i.davydenko@pharmasyntez.com", $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
+                await mailService.SendEmailAsync(config.FromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
             }           
         }
     }

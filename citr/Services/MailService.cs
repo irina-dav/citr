@@ -1,4 +1,5 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using System;
@@ -17,39 +18,46 @@ namespace citr.Services
     public class MailService : IMailService
     {
         private readonly MailConfig config;
+        ILogger<LdapService> logger;
 
-        public MailService(IOptions<MailConfig> cfg)
+        public MailService(IOptions<MailConfig> cfg, ILogger<LdapService> logger)
         {
-            config = cfg.Value;           
+            config = cfg.Value;
+            this.logger = logger;
         }
 
 
         public async Task SendEmailAsync(string from, string to, string subject, string message)
         {
-            var emailMessage = new MimeMessage()
+            from = config.FromEmail;        // TEMP
+            try
             {
-                Subject = subject,
-                Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                var emailMessage = new MimeMessage()
                 {
-                    Text = message
+                    Subject = subject,
+                    Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                    {
+                        Text = message
+                    }
+                };
+
+                emailMessage.From.Add(new MailboxAddress(from));
+                emailMessage.To.Add(new MailboxAddress(to));
+
+                using (var client = new SmtpClient())
+                {
+                    client.ServerCertificateValidationCallback = (s, d, e, f) => true;
+                    await client.ConnectAsync(config.SmtpHost, config.SmtpPort, false);
+                    await client.AuthenticateAsync(config.Email, config.Password);
+                    await client.SendAsync(emailMessage);
+
+                    await client.DisconnectAsync(true);
                 }
-            };
-
-             emailMessage.From.Add(new MailboxAddress(from));
-            // emailMessage.To.Add(new MailboxAddress(from));
-             emailMessage.From.Add(new MailboxAddress("i.davydenko@pharmasyntez.com"));
-             emailMessage.To.Add(new MailboxAddress("i.davydenko@pharmasyntez.com"));
-
-            using (var client = new SmtpClient())
+            }
+            catch (Exception ex)
             {
-                client.ServerCertificateValidationCallback = (s, d, e, f) => true;
-                await client.ConnectAsync(config.SmtpHost, config.SmtpPort, false);
-                await client.AuthenticateAsync(config.Email, config.Password);
-                await client.SendAsync(emailMessage);
-
-                await client.DisconnectAsync(true);
+                logger.LogError(ex.ToString());
             }
         }
-       
     }
 }
