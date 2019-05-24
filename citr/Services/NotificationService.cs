@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
+using Hangfire;
 
 namespace citr.Services
 {
@@ -19,13 +20,15 @@ namespace citr.Services
         private readonly MailConfig config;
         private readonly IViewRenderService viewRenderService;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IBackgroundJobClient backgroundJobs;
 
-        public NotificationService(IMailService mailService, IOptions<MailConfig> config, IViewRenderService viewRenderService, IHttpContextAccessor httpContextAccessor)
+        public NotificationService(IMailService mailService, IOptions<MailConfig> config, IViewRenderService viewRenderService, IHttpContextAccessor httpContextAccessor, IBackgroundJobClient backgroundJobs)
         {
             this.mailService = mailService;
             this.config = config.Value;
             this.viewRenderService = viewRenderService;
             this.httpContextAccessor = httpContextAccessor;
+            this.backgroundJobs = backgroundJobs;
         }
 
         public async Task SendToOTRSAsync(Request req, string baseUrl)
@@ -63,7 +66,8 @@ namespace citr.Services
                 };
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/Approve", model);
                 //approver.Email
-                await mailService.SendEmailAsync(config.FromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
+                //await mailService.SendEmailAsync(config.FromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
+                backgroundJobs.Enqueue<MailService>(ms => ms.SendEmailAsync(config.FromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml));
             }           
         }
     }

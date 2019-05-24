@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
@@ -17,8 +12,13 @@ using citr.Infrastructure;
 using citr.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Logging;
-using Serilog.Extensions.Logging;
 using Microsoft.AspNetCore.HttpOverrides;
+using Hangfire;
+using Hangfire.MySql.Core;
+using System.Data;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Hangfire.Dashboard;
+using System.Collections.Generic;
 
 namespace citr
 {
@@ -39,6 +39,8 @@ namespace citr
          
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+
+
 
             services.AddTransient<IResourceRepository, EFResourceRepository>();
             services.AddTransient<IEmployeeRepository, EFEmployeesRepository>();
@@ -82,13 +84,34 @@ namespace citr
             services.AddScoped<IViewRenderService, ViewRenderService>();
             services.AddScoped<NotificationService>();
 
+
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseStorage(new MySqlStorage(
+                    Configuration.GetConnectionString("HangfireStorage"),
+                    new MySqlStorageOptions
+                    {
+                        TransactionIsolationLevel = IsolationLevel.ReadCommitted,
+                        QueuePollInterval = TimeSpan.FromSeconds(15),
+                        JobExpirationCheckInterval = TimeSpan.FromHours(1),
+                        CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                        PrepareSchemaIfNecessary = true,
+                        DashboardJobListLimit = 50000,
+                        TransactionTimeout = TimeSpan.FromMinutes(1),
+                        TablePrefix = "Hangfire",
+
+                    }))
+            );
+
             services.AddMvc();
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
             services.AddSession();
         }
         
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IBackgroundJobClient backgroundJobs)
         {
             loggerFactory.AddFile(Configuration.GetSection("Logging"));
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -103,6 +126,14 @@ namespace citr
 
             //app.UseHttpsRedirection();
             app.UseCookiePolicy();
+
+
+            var options = new DashboardOptions
+            {
+                Authorization = new[] { new HFAuthorizationFilter() }
+            };
+            app.UseHangfireDashboard(options: options);
+            app.UseHangfireServer();
 
             app.UseMvc(routes =>
             {

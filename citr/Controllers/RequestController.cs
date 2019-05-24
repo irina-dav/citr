@@ -12,6 +12,7 @@ using citr.Models.ViewModels;
 using citr.Services;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace citr.Controllers
 {
@@ -68,7 +69,7 @@ namespace citr.Controllers
 
         [Authorize]
         public ViewResult ListMyRequests()
-        {
+        {            
             Employee currEmployee = ldapService.GetUserEmployee();
             ViewBag.Title = "Мои заявки";           
             var requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();       
