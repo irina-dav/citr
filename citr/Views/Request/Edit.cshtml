@@ -116,7 +116,7 @@
                     @if (Model.State == RequestState.New)
                     {
                         <input type="submit" name="response" value="Сохранить" formaction=@Url.Action("Edit") formmethod="post" class="btn btn-outline-primary rounded-0 " />
-                        <input type="submit" name="response" value="Отправить" formaction=@Url.Action("SendToApprove") formmethod="post" class="btn btn-outline-success rounded-0 " />
+                        <input type="submit" id="btnSend" disabled name="response" value="Отправить" formaction=@Url.Action("SendToApprove") formmethod="post" class="btn btn-outline-success rounded-0 " />
                     }
                     @if (Model.State == RequestState.Approving)
                     {
@@ -242,6 +242,7 @@
                 data: { index: nextIndex, resourceId: resId, employeeId: emplId, roleId: roleId},
                 success: function (results) {
                     $("#tblDetails tbody").append(results);
+                    $('#btnSend').removeAttr('disabled');
                 }
             });
         }
