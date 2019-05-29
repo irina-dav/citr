@@ -1,14 +1,12 @@
-﻿using System;
+﻿using citr.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-using citr.Services;
 
 namespace citr.Models
 {
-    public class Resource: IHistoryable
+    public class Resource : IHistoryable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ResourceID { get; set; }
@@ -23,13 +21,13 @@ namespace citr.Models
         [Display(Name = "Расположение")]
         public string Location { get; set; }
 
-        [Required(ErrorMessage = "Выберите категорию ресурса")]     
+        [Required(ErrorMessage = "Выберите категорию ресурса")]
         [Range(1, int.MaxValue, ErrorMessage = "Выберите категорию ресурса")]
         [Display(Name = "Категория")]
         public int CategoryID { get; set; }
         public virtual ResourceCategory Category { get; set; }
 
-        [Required(ErrorMessage = "Укажите владельца ресурса")]      
+        [Required(ErrorMessage = "Укажите владельца ресурса")]
         [Display(Name = "Владелец")]
         public int? OwnerEmployeeID { get; set; }
         public virtual Employee OwnerEmployee { get; set; }
@@ -42,12 +40,8 @@ namespace citr.Models
 
         public virtual List<HistoryRow> History { get; set; }
 
-        public int ObjectID { get => ResourceID; }
+        public int ObjectID => ResourceID;
 
         public virtual List<AccessRole> Roles { get; set; }
-
     }
-
-
-
 }

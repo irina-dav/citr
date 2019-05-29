@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using citr.Services;
 
 namespace citr.Models
 {
@@ -11,7 +10,7 @@ namespace citr.Models
 
         public DateTime Date { get; set; }
 
-        public int AuthorEmployeeID { get; set; }        
+        public int AuthorEmployeeID { get; set; }
 
         public string Text { get; set; }
 

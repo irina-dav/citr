@@ -1,4 +1,4 @@
-﻿@model EmailViewModel
+﻿@model RequestDetailViewModel
 @{
     Layout = null;
 }
@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Согласование заявки @Model.Request.RequestID</title>
+    <title>Предоставлен доступ к ресурсу @Model.Resource.Name</title>
     <style>
         body {
             max-width: 700px;
@@ -50,26 +50,16 @@
         <tr>
             <td>
                 <div>
-                    Уважаемый(ая) @Model.Recipient.FullName,
-                    <br /> вам необходимо согласовать заявку на <b>предоставление доступа</b> к информационным ресурсам:
+                    Уважаемый(ая) @Model.EmployeeAccess.FullName,
+                    <br /> вам предоставлен доступ к информационному ресурсу:
                     <ul>
-                        @foreach (var ra in Model.Resources)
-                        {
-                            <li>@ra.Name</li>
-                        }
+                        <li>Название ресурса: @Model.Resource.Name</li>
+                        <li>Роль: @Model.Role.Name</li>
                     </ul>
-                    <b>для сотрудников</b>:
-                    <ol>
-                        @foreach (RequestDetail detail in Model.Details)
-                        {
-                            <li>@detail.EmployeeAccess.FullName - @detail.Role.Name</li>
-                        }
-                    </ol>
                 </div>
-                <p><b>Комментарий</b>: @Model.Request.Comment</p>
                 <p>
-                    Для согласования перейдите по ссылке:
-                    <a href="@Model.Url">Заявка @Model.Request.RequestID</a>
+                    Связанная заявка OTRS:
+                    <a href="@Model.TicketUrl">Ticket @Model.Ticket.TicketNumber</a>
                 </p>
                 <p class='comment'>Отвечать на данное письмо не требуется</p>
             </td>

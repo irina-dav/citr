@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace citr.Models
 {
@@ -15,7 +13,7 @@ namespace citr.Models
             context = ctx;
         }
 
-        public IEnumerable<AccessRole> Roles =>  
+        public IEnumerable<AccessRole> Roles =>
             context.AccessRoles;
 
         public void SaveRole(AccessRole role)

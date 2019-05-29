@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace citr.Models.ViewModels
 {
     public class EmployeeViewModel
-    {      
+    {
         public int EmployeeID { get; set; }
 
         [Required(ErrorMessage = "Укажите ФИО сотрудника")]
@@ -40,12 +37,12 @@ namespace citr.Models.ViewModels
 
         public EmployeeViewModel(Employee empl)
         {
-            this.Account = empl.Account;
-            this.Email = empl.Email;
-            this.EmployeeID = empl.EmployeeID;
-            this.FullName = empl.FullName;
-            this.Position = empl.Position;
-            this.UserRoleID = empl.UserRoleID;             
+            Account = empl.Account;
+            Email = empl.Email;
+            EmployeeID = empl.EmployeeID;
+            FullName = empl.FullName;
+            Position = empl.Position;
+            UserRoleID = empl.UserRoleID;
         }
     }
 }

@@ -3,10 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace citr.Services
 {
@@ -18,7 +15,7 @@ namespace citr.Services
     public class MailService : IMailService
     {
         private readonly MailConfig config;
-        ILogger<LdapService> logger;
+        private ILogger<LdapService> logger;
 
         public MailService(IOptions<MailConfig> cfg, ILogger<LdapService> logger)
         {
@@ -26,13 +23,12 @@ namespace citr.Services
             this.logger = logger;
         }
 
-
         public async Task SendEmailAsync(string from, string to, string subject, string message)
         {
             from = config.FromEmail;        // TEMP
             try
             {
-                var emailMessage = new MimeMessage()
+                MimeMessage emailMessage = new MimeMessage()
                 {
                     Subject = subject,
                     Body = new TextPart(MimeKit.Text.TextFormat.Html)
@@ -44,7 +40,7 @@ namespace citr.Services
                 emailMessage.From.Add(new MailboxAddress(from));
                 emailMessage.To.Add(new MailboxAddress(to));
 
-                using (var client = new SmtpClient())
+                using (SmtpClient client = new SmtpClient())
                 {
                     client.ServerCertificateValidationCallback = (s, d, e, f) => true;
                     await client.ConnectAsync(config.SmtpHost, config.SmtpPort, false);

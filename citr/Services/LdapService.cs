@@ -1,14 +1,13 @@
-﻿using System;
+﻿using citr.Models;
+using citr.Models.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Novell.Directory.Ldap;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using Novell.Directory.Ldap;
-using citr.Models;
-using citr.Models.ViewModels;
-using Microsoft.Extensions.Logging;
 
 namespace citr.Services
 {
@@ -32,7 +31,7 @@ namespace citr.Services
         private readonly LdapConnection connection;
         private IEmployeeRepository employeesRepository;
         private readonly IHttpContextAccessor httpContextAccessor;
-        ILogger<LdapService> logger;
+        private ILogger<LdapService> logger;
 
         public LdapService(IOptions<LdapConfig> cfg, IEmployeeRepository emplRepo, IHttpContextAccessor httpCtxAccessor, ILogger<LdapService> logger)
         {
@@ -43,7 +42,7 @@ namespace citr.Services
             connection = new LdapConnection
             {
                 SecureSocketLayer = false
-            };           
+            };
         }
 
 
@@ -52,8 +51,8 @@ namespace citr.Services
             connection.Connect(config.Url, LdapConnection.DEFAULT_PORT);
             connection.Bind(config.BindDn, config.BindCredentials);
 
-            var searchFilter = string.Format(config.AuthFilter, username);
-            var result = connection.Search(
+            string searchFilter = string.Format(config.AuthFilter, username);
+            LdapSearchResults result = connection.Search(
                 config.SearchBase,
                 LdapConnection.SCOPE_SUB,
                 searchFilter,
@@ -63,7 +62,7 @@ namespace citr.Services
 
             try
             {
-                var user = result.Next();
+                LdapEntry user = result.Next();
                 if (user != null)
                 {
                     connection.Bind(user.DN, password);
@@ -75,7 +74,6 @@ namespace citr.Services
                             Username = user.getAttribute(SAMAccountNameAttribute).StringValue,
                             Email = user.getAttribute(MailAttribute)?.StringValue ?? "",
                             Position = user.getAttribute(TitleAttribute)?.StringValue ?? ""
-                            //IsAdmin = user.getAttribute(MemberOfAttribute).StringValueArray.Contains(config.AdminCn)
                         };
                     }
                 }
@@ -95,20 +93,20 @@ namespace citr.Services
             if (userEmployee != null)
             {
                 userName = $"{userEmployee.FullName}";
-            }            
+            }
             return userName;
         }
 
         public Employee GetUserEmployee()
         {
             string account = httpContextAccessor.HttpContext.User.Identity.Name;
-            return employeesRepository.Employees.FirstOrDefault(e => e.Account.Equals(account, StringComparison.InvariantCultureIgnoreCase));            
+            return employeesRepository.Employees.FirstOrDefault(e => e.Account.Equals(account, StringComparison.InvariantCultureIgnoreCase));
         }
 
         public ResultUserUpdate UpdateEmployees()
         {
             StringBuilder sb = new StringBuilder();
-            ResultUserUpdate result = new ResultUserUpdate();            
+            ResultUserUpdate result = new ResultUserUpdate();
             try
             {
                 connection.Connect(config.Url, LdapConnection.DEFAULT_PORT);
@@ -125,7 +123,7 @@ namespace citr.Services
             {
                 foreach (string orgUnit in config.OrgUnits)
                 {
-                    var resultSearch = connection.Search(
+                    List<LdapEntry> resultSearch = connection.Search(
                     orgUnit,
                     LdapConnection.SCOPE_SUB,
                     config.SearchFilter,
@@ -133,8 +131,8 @@ namespace citr.Services
                     false
                     ).ToList();
 
-                    foreach (var user in resultSearch)
-                    {                        
+                    foreach (LdapEntry user in resultSearch)
+                    {
                         if (user != null)
                         {
                             result.SearchedAccountsCount++;
@@ -145,7 +143,7 @@ namespace citr.Services
                             if (fullName == "" || email == "" || position == "")
                             {
                                 result.NotValidAccountCount++;
-                                result.NotValidAccounts.Add(account);                                
+                                result.NotValidAccounts.Add(account);
                                 continue;
                             }
 
@@ -173,10 +171,13 @@ namespace citr.Services
                                 }
                             }
                             else
-                            {                                
+                            {
                                 Employee employee = employeesRepository.Employees.FirstOrDefault(e => e.Account == account);
                                 if (employee == null)
+                                {
                                     continue;
+                                }
+
                                 bool updated = false;
                                 if (employee.Email != email)
                                 {
@@ -186,7 +187,7 @@ namespace citr.Services
                                 if (employee.FullName != fullName)
                                 {
                                     employee.FullName = fullName;
-                                     updated = true;
+                                    updated = true;
                                 }
                                 if (employee.Position != position)
                                 {
@@ -210,6 +211,6 @@ namespace citr.Services
             }
             connection.Disconnect();
             return result;
-        }       
+        }
     }
 }

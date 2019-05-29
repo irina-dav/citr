@@ -12,7 +12,7 @@ namespace citr.Infrastructure
 
         public bool Authorize(DashboardContext context)
         {
-            var httpContext = context.GetHttpContext();
+            HttpContext httpContext = context.GetHttpContext();
             if (httpContext.User.IsInRole("Admins"))
             {
                 return true;

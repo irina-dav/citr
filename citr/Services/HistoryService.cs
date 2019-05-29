@@ -1,9 +1,7 @@
 ﻿using citr.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace citr.Services
 {
@@ -11,7 +9,7 @@ namespace citr.Services
     {
         List<HistoryRow> History { get; set; }
 
-        int ObjectID { get;}
+        int ObjectID { get; }
     }
 
     public class HistoryService
@@ -28,17 +26,19 @@ namespace citr.Services
         public void AddRow(IHistoryable obj, string text)
         {
             if (obj.History == null)
+            {
                 obj.History = new List<HistoryRow>();
+            }
 
-            string historyText = Regex.Replace(text, "<.*?>", String.Empty);
+            string historyText = Regex.Replace(text, "<.*?>", string.Empty);
 
             obj.History.Add(new HistoryRow()
-             {
-                 AuthorEmployeeID = ldapService.GetUserEmployee().EmployeeID,
-                 Date = DateTime.Now,
-                 Text = historyText
-            });   
+            {
+                AuthorEmployeeID = ldapService.GetUserEmployee().EmployeeID,
+                Date = DateTime.Now,
+                Text = historyText
+            });
             context.SaveChanges();
-        }       
+        }
     }
 }

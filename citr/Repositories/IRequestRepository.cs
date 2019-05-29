@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace citr.Models
 {
@@ -9,9 +6,6 @@ namespace citr.Models
     {
         IQueryable<Request> Requests { get; }
 
-        //void SaveRequest(Request request);
-
-        //void SaveRequestDetail(RequestDetail rd);
-
+        IQueryable<RequestDetail> RequestsDetails { get; }
     }
 }

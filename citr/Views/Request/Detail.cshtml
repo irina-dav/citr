@@ -16,13 +16,13 @@
         {
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-success rounded-0 btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Approved ? "active" : "")">
-                    <input type="radio" value="@((int)ResourceApprovingResult.Approved)" asp-for="ApprovingResult" autocomplete="off" 
-                         checked="@(Model.ApprovingResult == ResourceApprovingResult.Approved)" />
+                    <input type="radio" value="@((int)ResourceApprovingResult.Approved)" asp-for="ApprovingResult" autocomplete="off"
+                           checked="@(Model.ApprovingResult == ResourceApprovingResult.Approved)" />
                     <span class="fa fa-check"></span><span>Согласовано</span>
                 </label>
                 <label class="btn btn-danger rounded-0 btn-approving @(@Model.ApprovingResult == ResourceApprovingResult.Declined ? "active" : "")">
                     <input type="radio" value="@((int)ResourceApprovingResult.Declined)" asp-for="ApprovingResult" autocomplete="off"
-                        checked="@(Model.ApprovingResult == ResourceApprovingResult.Declined)" />
+                           checked="@(Model.ApprovingResult == ResourceApprovingResult.Declined)" />
                     <span class="fa fa-check"></span>Отказ
                 </label>
             </div>

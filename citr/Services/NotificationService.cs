@@ -32,7 +32,7 @@ namespace citr.Services
         }
 
         public async Task SendToOTRSAsync(Request req, string baseUrl)
-        {            
+        {
             foreach (var resGroup in req.Details.Where(d => d.ApprovingResult == ResourceApprovingResult.Approved).GroupBy(d => d.Resource))
             {
                 Resource res = resGroup.Key;
@@ -46,16 +46,16 @@ namespace citr.Services
                 };
 
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/OTRS", model);
-                await mailService.SendEmailAsync(req.Author.Email, config.OTRSEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);         
+                await mailService.SendEmailAsync(req.Author.Email, config.OTRSEmail, $"Заявка на доступ к {res.Name} [{req.RequestID}|{res.ResourceID}]", viewHtml);
             }
         }
-        
+
         public async Task SendToApprovers(Request req, string baseUrl)
         {
             foreach (var g in req.Details.GroupBy(d => d.Resource.OwnerEmployee))
             {
                 Employee approver = g.Key;
-                var details = g.ToList();               
+                var details = g.ToList();
                 EmailViewModel model = new EmailViewModel()
                 {
                     Recipient = approver,
@@ -65,10 +65,17 @@ namespace citr.Services
                     Url = $"{baseUrl}/Request/Open/{req.RequestID}"
                 };
                 var viewHtml = await viewRenderService.RenderToStringAsync("Email/Approve", model);
-                //approver.Email
-                //await mailService.SendEmailAsync(config.FromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml);
                 backgroundJobs.Enqueue<MailService>(ms => ms.SendEmailAsync(config.FromEmail, approver.Email, $"Согласование заявки на доступ №{req.RequestID}", viewHtml));
-            }           
+            }
+        }
+
+        public async Task SendFromOTRSAsync(RequestDetail det, string ticketUrl)
+        {
+            RequestDetailViewModel model = new RequestDetailViewModel(det);
+            model.TicketUrl = ticketUrl;
+
+            var viewHtml = await viewRenderService.RenderToStringAsync("Email/FinishedTicket", model);
+            backgroundJobs.Enqueue<MailService>(ms => ms.SendEmailAsync(config.FromEmail, det.EmployeeAccess.Email, $"Предоставлен доступ к ресурсу {det.Resource.Name}", viewHtml));
         }
     }
 }

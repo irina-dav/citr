@@ -27,16 +27,16 @@
             $('.js-example-basic-multiple').select2();
             $("#dropdown").select2({
                 theme: "bootstrap"
-            });          
-        });        
-       $.fn.select2.defaults.set("theme", "bootstrap");
+            });
+        });
+        $.fn.select2.defaults.set("theme", "bootstrap");
     </script>
     @RenderSection("head", false)
     <title>Каталог ИТ-ресурсов@(string.IsNullOrEmpty(ViewBag.Title) ? "" : $" :: {ViewBag.Title}")</title>
 </head>
 <body>
     <partial name="_Navbar" />
-    
+
     <div class="m-1 p-1">
         @if (TempData["message"] != null)
         {

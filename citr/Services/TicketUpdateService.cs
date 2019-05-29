@@ -44,7 +44,7 @@ namespace citr.Services
             {
                 var otrsService = scope.ServiceProvider.GetService<OTRSService>();
                 otrsService.UpdateRequestDetails();
-                otrsService.UpdateTickets();
+                otrsService.UpdateTicketsAsync();
             }
         }
 

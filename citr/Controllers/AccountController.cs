@@ -1,16 +1,15 @@
-﻿using System;
+﻿using citr.Models;
+using citr.Models.ViewModels;
+using citr.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using citr.Services;
-using citr.Models.ViewModels;
-using citr.Models;
 
 namespace citr.Controllers
 {
@@ -47,15 +46,10 @@ namespace citr.Controllers
             {
                 try
                 {
-                    var user = _authService.Login(model.Username, model.Password);
-                    /*var user = new AppUser()
-                    {
-                        DisplayName = model.Username,
-                        Username = model.Username
-                    };*/
+                    AppUser user = _authService.Login(model.Username, model.Password);
                     if (null != user)
                     {
-                        var userClaims = new List<Claim>
+                        List<Claim> userClaims = new List<Claim>
                         {
                             new Claim("displayName", user.DisplayName),
                             new Claim("username", user.Username),
@@ -85,7 +79,7 @@ namespace citr.Controllers
                                 userClaims.Add(new Claim(ClaimTypes.Role, "Users"));
                             }
                         }
-                        var principal = new ClaimsPrincipal(new ClaimsIdentity(userClaims, _authService.GetType().Name, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType));
+                        ClaimsPrincipal principal = new ClaimsPrincipal(new ClaimsIdentity(userClaims, _authService.GetType().Name, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType));
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                         return Redirect(returnUrl ?? "/");
                     }
@@ -103,7 +97,7 @@ namespace citr.Controllers
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
-            
+
         }
     }
 }

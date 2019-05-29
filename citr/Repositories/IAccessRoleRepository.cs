@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace citr.Models
 {
@@ -12,7 +9,5 @@ namespace citr.Models
         void SaveRole(AccessRole role);
 
         AccessRole DeleteRole(int roleId);
-
-        //void AddRequestEvent(Request request, string textEvent);
     }
 }

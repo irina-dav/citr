@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace citr.Services
@@ -36,24 +34,24 @@ namespace citr.Services
 
         public async Task<string> RenderToStringAsync(string viewName, object model)
         {
-            var httpContext = new DefaultHttpContext { RequestServices = _serviceProvider };
-            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+            DefaultHttpContext httpContext = new DefaultHttpContext { RequestServices = _serviceProvider };
+            ActionContext actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 
-            using (var sw = new StringWriter())
+            using (StringWriter sw = new StringWriter())
             {
-                var viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
+                Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
 
                 if (viewResult.View == null)
                 {
                     throw new ArgumentNullException($"{viewName} does not match any available view");
                 }
 
-                var viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                ViewDataDictionary viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
                 {
                     Model = model
                 };
 
-                var viewContext = new ViewContext(
+                ViewContext viewContext = new ViewContext(
                     actionContext,
                     viewResult.View,
                     viewDictionary,

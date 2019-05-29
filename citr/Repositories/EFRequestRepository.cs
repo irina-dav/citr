@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace citr.Models
 {
@@ -21,7 +18,7 @@ namespace citr.Models
             .Include(r => r.Author)
             .Include(r => r.Details)
                 .ThenInclude(d => d.Resource)
-                .ThenInclude(r=> r.OwnerEmployee)
+                .ThenInclude(r => r.OwnerEmployee)
              .Include(r => r.Details)
                 .ThenInclude(d => d.Resource)
                 .ThenInclude(r => r.Category)
@@ -34,47 +31,11 @@ namespace citr.Models
             .Include(r => r.Details)
                 .ThenInclude(d => d.Ticket);
 
-
-        /* public void SaveRequest(Request request)
-         {
-             if (request.RequestID == 0)
-             {
-                 context.Requests.Add(request);
-             }
-             else
-             {
-
-                 var fromDb = context.Requests
-                  .Include(r => r.Details)
-                  .Include(r => r.History)
-                  .SingleOrDefault(x => x.RequestID.Equals(request.RequestID));
-
-                 fromDb.Comment = request.Comment;
-                 fromDb.ChangeDate = request.ChangeDate;
-                 fromDb.State = request.State;
-                 context.Entry(fromDb).State = EntityState.Modified;
-
-                 foreach (var d in fromDb.Details)
-                 {
-                     context.Entry(d).State = EntityState.Deleted;
-                 }
-                 fromDb.Details.AddRange(new List<RequestDetail>(request.Details));
-             }
-             context.SaveChanges();
-         }
-         */
-        /*public void SaveRequestDetail(RequestDetail rd)
-        {
-             var fromDb = context.Requests
-                 .Include(r => r.Details)
-                 .Include(r => r.History)
-                 .SingleOrDefault(x => x.Details.Any(d => d.ID == rd.ID));
-             context.Entry(rd).State = EntityState.Modified;
-             
-            var dbEntry = context.RequestDetail.First(d => d.ID == rd.ID);
-            context.Entry(dbEntry).State = EntityState.Modified;
-            context.SaveChanges();
-        }
-        */
+        public IQueryable<RequestDetail> RequestsDetails =>
+            context.RequestDetail
+            .Include(r => r.EmployeeAccess)
+            .Include(r => r.Resource)
+            .Include(r => r.Role)
+            .Include(r => r.Ticket);
     }
 }

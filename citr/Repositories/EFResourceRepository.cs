@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace citr.Models
 {
@@ -15,14 +13,14 @@ namespace citr.Models
             context = ctx;
         }
 
-        public IEnumerable<Resource> Resources 
+        public IEnumerable<Resource> Resources
             => context.Resources
                 .Include(r => r.OwnerEmployee)
                 .Include(r => r.Category)
                 .Include(r => r.History)
                     .ThenInclude(h => h.AuthorEmployee)
                 .Include(r => r.Roles);
-     
+
         public Resource DeleteResource(int resourceId)
         {
             Resource dbEntry = context.Resources.FirstOrDefault(r => r.ResourceID.Equals(resourceId));
@@ -47,7 +45,7 @@ namespace citr.Models
             }
             else
             {
-                var fromDb = context.Resources
+                Resource fromDb = context.Resources
                    .Include(r => r.OwnerEmployee)
                    .Include(r => r.Category)
                    .Include(r => r.History)
@@ -57,13 +55,13 @@ namespace citr.Models
                 fromDb.ChangeDate = resource.ChangeDate;
                 fromDb.Description = resource.Description;
                 fromDb.CategoryID = resource.CategoryID;
-                fromDb.OwnerEmployeeID = resource.OwnerEmployeeID;              
+                fromDb.OwnerEmployeeID = resource.OwnerEmployeeID;
                 context.Entry(fromDb).State = EntityState.Modified;
-                foreach (var r in fromDb.Roles)
+                foreach (AccessRole r in fromDb.Roles)
                 {
                     context.Entry(r).State = EntityState.Deleted;
                 }
-                fromDb.Roles.AddRange(new List<AccessRole>(resource.Roles));               
+                fromDb.Roles.AddRange(new List<AccessRole>(resource.Roles));
             }
             context.SaveChanges();
         }

@@ -1,5 +1,3 @@
-using System;
-
 namespace citr.Models
 {
     public class ErrorViewModel

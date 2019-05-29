@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using citr.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using citr.Models;
 using citr.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 
 namespace citr.Controllers
@@ -24,8 +23,8 @@ namespace citr.Controllers
         }
 
         public JsonResult IsAccountExist(string Account, int EmployeeID)
-        {            
-            return Json(!repository.Employees.Any( x => x.Account.Equals(Account, comparisonType: StringComparison.InvariantCultureIgnoreCase) && x.EmployeeID != EmployeeID));
+        {
+            return Json(!repository.Employees.Any(x => x.Account.Equals(Account, comparisonType: StringComparison.InvariantCultureIgnoreCase) && x.EmployeeID != EmployeeID));
         }
 
         [Authorize(Roles = "Admins")]
@@ -44,8 +43,10 @@ namespace citr.Controllers
                 Text = r.Name
 
             });
-            EmployeeViewModel model = new EmployeeViewModel(empl);
-            model.Roles = items;
+            EmployeeViewModel model = new EmployeeViewModel(empl)
+            {
+                Roles = items
+            };
             return View(model);
         }
 
@@ -83,7 +84,7 @@ namespace citr.Controllers
 
         [Authorize(Roles = "Admins")]
         public ViewResult Create()
-        {            
+        {
             return View("Edit", new EmployeeViewModel());
         }
 
@@ -98,7 +99,7 @@ namespace citr.Controllers
             }
             catch (DbUpdateException ex)
             {
-                var innerException = ex.InnerException.InnerException as MySql.Data.MySqlClient.MySqlException;
+                MySql.Data.MySqlClient.MySqlException innerException = ex.InnerException.InnerException as MySql.Data.MySqlClient.MySqlException;
                 if (innerException != null && innerException.Number == 1451)
                 {
                     TempData["Error"] = $"Не удалось удалить сотрудника <b>{emplToDel.FullName}</b>: на него есть ссылки в других объектах";
@@ -122,11 +123,14 @@ namespace citr.Controllers
         public ActionResult GetEmployeesJson(string search)
         {
             if (search == null)
+            {
                 search = "";
+            }
+
             var results = repository.Employees.Where(em => em.FullName.Contains(search, StringComparison.InvariantCultureIgnoreCase))
                 .OrderBy(em => em.FullName)
-                .Select(em => new { id = em.EmployeeID, text = em.FullName });            
-            return Json(results);            
+                .Select(em => new { id = em.EmployeeID, text = em.FullName });
+            return Json(results);
         }
 
         [Authorize]
@@ -135,18 +139,18 @@ namespace citr.Controllers
         {
             try
             {
-                var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
-                var start = Request.Form["start"].FirstOrDefault();
-                var length = Request.Form["length"].FirstOrDefault();
-                var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault(); 
-                var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
-                var searchValue = Request.Form["search[value]"].FirstOrDefault();
+                string draw = HttpContext.Request.Form["draw"].FirstOrDefault();
+                string start = Request.Form["start"].FirstOrDefault();
+                string length = Request.Form["length"].FirstOrDefault();
+                string sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+                string sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
+                string searchValue = Request.Form["search[value]"].FirstOrDefault();
 
                 int pageSize = length != null ? Convert.ToInt32(length) : 0;
                 int skip = start != null ? Convert.ToInt32(start) : 0;
                 int recordsTotal = 0;
-                
-               var employeeData = repository.Employees.Where(e => !string.IsNullOrEmpty(e.FullName)).AsQueryable();
+
+                IQueryable<Employee> employeeData = repository.Employees.Where(e => !string.IsNullOrEmpty(e.FullName)).AsQueryable();
 
                 if (!(string.IsNullOrEmpty(sortColumn) && string.IsNullOrEmpty(sortColumnDirection)))
                 {
@@ -154,8 +158,8 @@ namespace citr.Controllers
                 }
                 if (!string.IsNullOrEmpty(searchValue) && searchValue.Length >= 3)
                 {
-                    employeeData = employeeData.Where(m => 
-                        m.FullName.Contains(searchValue, StringComparison.OrdinalIgnoreCase) 
+                    employeeData = employeeData.Where(m =>
+                        m.FullName.Contains(searchValue, StringComparison.OrdinalIgnoreCase)
                         || m.Account.Contains(searchValue, StringComparison.OrdinalIgnoreCase)
                         || m.Email.Contains(searchValue, StringComparison.OrdinalIgnoreCase)
                         || m.Position.Contains(searchValue, StringComparison.OrdinalIgnoreCase));
@@ -163,9 +167,9 @@ namespace citr.Controllers
 
                 recordsTotal = employeeData.Count();
 
-                var data = employeeData.Skip(skip).Take(pageSize).ToList();
+                List<Employee> data = employeeData.Skip(skip).Take(pageSize).ToList();
 
-                var json = Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+                JsonResult json = Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
                 return json;
 
             }

@@ -52,7 +52,7 @@
                 var form =
                     "<form id=\"actionsForm" + full.employeeID + "\" action=\"/Employee/Delete\" method=\"post\">" +
                     "<a class=\"btn btn-sm rounded-0 btn-list-action btn-outline-success p-0 mr-1\"  href=\"Edit?employeeId=" + full.employeeID + "\">Открыть</a>" +
-                    "<input type=\"hidden\" id=\"EmployeeID\" name=\"EmployeeID\" value='" + full.employeeID + "' />" +               
+                    "<input type=\"hidden\" id=\"EmployeeID\" name=\"EmployeeID\" value='" + full.employeeID + "' />" +
                     "<button type=\"button\" onclick=\"DeleteEmployee(" + full.employeeID + ",'" + full.fullName + "')\" class=\"btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0 \">Удалить</button></form>";
                 return form;
             },
@@ -67,7 +67,7 @@
 
     function DeleteEmployee(emplId, emplName) {
 
-        var form = $('#actionsForm' + emplId);        
+        var form = $('#actionsForm' + emplId);
         $.confirm({
             title: 'Удаление сотрудника',
             content: 'Вы действительно хотите удалить сотрудника <b>' + emplName + '</b>?<br>Удалить будет возможно только сотрудника, на которого нет ссылок.',

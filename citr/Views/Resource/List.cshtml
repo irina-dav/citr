@@ -35,7 +35,7 @@
                             <a asp-action="Copy" class="btn  btn-sm rounded-0 btn-list-action btn-outline-info p-0 m-0" asp-route-sourceId="@res.ResourceID">Копировать</a>
                             <input type="hidden" name="ResourceID" value="@res.ResourceID" />
                             <input type="hidden" name="Name" value="@res.Name" />
-                            <input  type="submit" class="btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0 deleteResource" value="Удалить" />
+                            <input type="submit" class="btn btn-sm rounded-0 btn-list-action btn-outline-danger p-0 m-0 deleteResource" value="Удалить" />
                         </form>
                     </td>
                 </tr>
@@ -59,7 +59,7 @@
                 Удалить: function () {
                     form.submit();
                 },
-                Отмена: function () {                  
+                Отмена: function () {
                 },
             }
         });

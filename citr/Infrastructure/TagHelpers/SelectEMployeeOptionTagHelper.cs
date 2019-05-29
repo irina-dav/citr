@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using citr.Models;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.Reflection;
-using citr.Models;
+using System.Threading.Tasks;
 
 namespace citr.Infrastructure.TagHelpers
 {
@@ -25,8 +21,6 @@ namespace citr.Infrastructure.TagHelpers
         {
             output.Content.AppendHtml((await output.GetChildContentAsync(false)).GetContent());
             Employee selected = ModelFor.Model as Employee;
-            //PropertyInfo property = typeof(Employee).GetTypeInfo().GetDeclaredProperty(ModelFor.Name);
-
             foreach (Employee empl in repository.Employees)
             {
                 if (selected != null && selected.Equals(empl))

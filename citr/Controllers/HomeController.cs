@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using citr.Models;
+using citr.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using citr.Models;
-using citr.Services;
-using citr.Repositories;
-using Microsoft.AspNetCore.Authorization;
 
 namespace citr.Controllers
 {
@@ -27,7 +23,7 @@ namespace citr.Controllers
         {
             int currEmployeeId = ldapService.GetUserEmployee().EmployeeID;
             if (requestRepository.Requests
-                .Any(r => r.State == RequestState.Approving && 
+                .Any(r => r.State == RequestState.Approving &&
                     r.Details.Any(d => d.ResourceOwnerID == currEmployeeId && d.ApprovingResult == ResourceApprovingResult.None)))
             {
                 return RedirectToAction("ListToApprove", "Request");
@@ -41,25 +37,6 @@ namespace citr.Controllers
                 return RedirectToAction("ListMyRequests", "Request");
             }
 
-        }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

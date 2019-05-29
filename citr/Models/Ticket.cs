@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace citr.Models
 {
@@ -14,6 +11,5 @@ namespace citr.Models
         public DateTime? EndDate { get; set; }
 
         public string EndByUser { get; set; }
-
     }
 }

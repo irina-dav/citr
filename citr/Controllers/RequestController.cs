@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using citr.Infrastructure;
+﻿using citr.Infrastructure;
 using citr.Models;
 using citr.Models.ViewModels;
 using citr.Services;
-using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Hangfire;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace citr.Controllers
 {
@@ -34,8 +30,8 @@ namespace citr.Controllers
 
         public RequestController(
             IEmployeeRepository employeeRepo,
-            IResourceRepository resourceRepo, 
-            IRequestRepository repo, 
+            IResourceRepository resourceRepo,
+            IRequestRepository repo,
             IAccessRoleRepository roleRepo,
             ILdapService ldapSrv,
             HistoryService historySrv,
@@ -69,10 +65,10 @@ namespace citr.Controllers
 
         [Authorize]
         public ViewResult ListMyRequests()
-        {            
+        {
             Employee currEmployee = ldapService.GetUserEmployee();
-            ViewBag.Title = "Мои заявки";           
-            var requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();       
+            ViewBag.Title = "Мои заявки";
+            List<Request> requests = repository.Requests.Where(r => r.AuthorID == currEmployee.EmployeeID).ToList();
             return View("List", requests);
         }
 
@@ -91,7 +87,6 @@ namespace citr.Controllers
             {
                 State = RequestState.New,
                 Author = ldapService.GetUserEmployee(),
-                //AuthorID = ldapService.GetUserEmployee().EmployeeID
             });
         }
 
@@ -102,7 +97,6 @@ namespace citr.Controllers
             {
                 State = RequestState.New,
                 Author = ldapService.GetUserEmployee(),
-                //AuthorID = ldapService.GetUserEmployee().EmployeeID,
                 Comment = req.Comment,
                 Details = new List<RequestDetailViewModel>(req.Details.Select(d => new RequestDetailViewModel()
                 {
@@ -116,7 +110,6 @@ namespace citr.Controllers
                     Role = d.Role
                 }))
             };
-            //ViewBag.CurrentEmployeeId = ldapService.GetUserEmployee().EmployeeID;           
             return View("Edit", newReqModel);
         }
 
@@ -136,12 +129,14 @@ namespace citr.Controllers
                 return View("Edit", requestModel);
             }
             else
+            {
                 return View("~/Views/Errors/AccessDenied.cshtml");
+            }
         }
 
         [HttpPost]
         public IActionResult Edit(RequestViewModel model)
-        {            
+        {
             Request req = SaveRequstPost(model);
             if (req == null)
             {
@@ -161,7 +156,7 @@ namespace citr.Controllers
             int emplId = int.Parse(employeeId);
             Resource res = resourcesRepository.Resources.FirstOrDefault(e => e.ResourceID.Equals(resId));
             Employee empl = employeeesRepository.Employees.FirstOrDefault(e => e.EmployeeID.Equals(emplId));
-            var newObj = new RequestDetailViewModel()
+            RequestDetailViewModel newObj = new RequestDetailViewModel()
             {
                 ResourceID = resId,
                 Resource = res,
@@ -186,15 +181,14 @@ namespace citr.Controllers
             else
             {
                 req.State = RequestState.Approving;
-                //repository.SaveRequest(req);
                 context.SaveChanges();
-                string mess = $"Заявка <b>{req.RequestID}</b> была отправлена на согласование";                
+                string mess = $"Заявка <b>{req.RequestID}</b> была отправлена на согласование";
                 historyService.AddRow(req, mess);
-                TempData["message"] = mess;                
-                await notifService.SendToApprovers(req, this.BaseUrl());                
+                TempData["message"] = mess;
+                await notifService.SendToApprovers(req, this.BaseUrl());
                 return RedirectToAction("ListMyRequests");
-            }          
-        }        
+            }
+        }
 
         public async Task<IActionResult> TestAsync()
         {
@@ -224,7 +218,6 @@ namespace citr.Controllers
                     await notifService.SendToOTRSAsync(req, this.BaseUrl());
                 }
                 context.SaveChanges();
-                //repository.SaveRequest(req);
             }
             historyService.AddRow(req, mess);
             TempData["message"] = mess;
@@ -233,12 +226,12 @@ namespace citr.Controllers
 
         private Request SaveRequstPost(RequestViewModel model)
         {
-            var details = model.Details?.Where(c => !c.IsDeleted).ToList();
-           
+            List<RequestDetailViewModel> details = model.Details?.Where(c => !c.IsDeleted).ToList();
+
             bool isNew = model.RequestID == 0;
             Request request = repository.Requests.FirstOrDefault(r => r.RequestID == model.RequestID);
             if (ModelState.IsValid)
-            {               
+            {
                 if (isNew)
                 {
                     request = new Request();
@@ -246,20 +239,22 @@ namespace citr.Controllers
                     request.AuthorID = ldapService.GetUserEmployee().EmployeeID;
                     request.CreateDate = DateTime.Now;
                     request.State = RequestState.New;
-                }        
-                
+                }
+
                 request.Comment = model.Comment;
-                var dList = new List<RequestDetail>();
-                foreach (var detModel in details)
+                List<RequestDetail> dList = new List<RequestDetail>();
+                foreach (RequestDetailViewModel detModel in details)
                 {
-                    var detail = context.RequestDetail.Find(detModel.ID);
-                    var resource = resourcesRepository.Resources.FirstOrDefault(r => r.ResourceID == detModel.ResourceID);                    
+                    RequestDetail detail = context.RequestDetail.Find(detModel.ID);
+                    Resource resource = resourcesRepository.Resources.FirstOrDefault(r => r.ResourceID == detModel.ResourceID);
                     if (detail == null)
+                    {
                         detail = new RequestDetail();
+                    }
+
                     detail.ApprovingResult = detModel.ApprovingResult;
                     detail.EmployeeAccessID = detModel.EmployeeAccessID;
                     detail.ResourceID = detModel.ResourceID;
-                    //detail.Resource = detModel.Resource;
                     detail.ResourceOwnerID = detModel.ResourceOwnerID;
                     detail.RoleID = detModel.RoleID;
                     detail.TicketID = detModel.TicketID;
@@ -268,14 +263,15 @@ namespace citr.Controllers
                 request.Details = dList;
                 request.ChangeDate = DateTime.Now;
                 context.SaveChanges();
-               // repository.SaveRequest(request);
 
                 string mess = $"Заявка <b>{request.RequestID}</b> был сохранeна";
                 if (isNew)
+                {
                     mess = $"Заявка <b>{request.RequestID}</b> была создана";
-                //Request reqSaved = repository.Requests.First(r => r.RequestID.Equals(model.RequestID));
+                }
+
                 historyService.AddRow(request, mess);
-                TempData["message"] = mess;                
+                TempData["message"] = mess;
                 return request;
             }
             else
@@ -300,7 +296,6 @@ namespace citr.Controllers
                     model.Author = ldapService.GetUserEmployee();
                     model.State = RequestState.New;
                 }
-                // model.Author = employeeesRepository.Employees.FirstOrDefault(e => e.EmployeeID == model.AuthorID);
                 return null;
             }
         }
@@ -309,22 +304,11 @@ namespace citr.Controllers
         public ActionResult GetRoles(string resourceId)
         {
             if (int.TryParse(resourceId, out int resId))
-            {               
+            {
                 IEnumerable<AccessRole> roles = resourcesRepository.Resources.First(r => r.ResourceID == int.Parse(resourceId)).Roles;
-                return Json(roles);               
+                return Json(roles);
             }
             return Json(new EmptyResult());
         }
-
-        /*[HttpPost]
-        public IActionResult Delete(int resourceId)
-        {
-            Resource deletedResource = repository.DeleteResource(resourceId);
-            if (deletedResource != null)
-            {
-                TempData["message"] = $"{deletedResource.Name} был удалён";
-            }
-            return RedirectToAction("List");
-        }*/
     }
 }

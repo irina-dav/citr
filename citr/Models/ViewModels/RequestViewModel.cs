@@ -1,9 +1,6 @@
 ﻿using citr.Infrastructure;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace citr.Models.ViewModels
 {
@@ -16,7 +13,7 @@ namespace citr.Models.ViewModels
         public virtual List<RequestDetailViewModel> Details { get; set; } = new List<RequestDetailViewModel>();
 
         [Display(Name = "Комментарий")]
-        public string Comment { get; set; }        
+        public string Comment { get; set; }
 
         [Display(Name = "Статус заявки")]
         public RequestState State { get; set; }
@@ -31,7 +28,7 @@ namespace citr.Models.ViewModels
         }
 
         public RequestViewModel(Request request)
-        {            
+        {
             RequestID = request.RequestID;
             Comment = request.Comment;
             State = request.State;

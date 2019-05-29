@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using citr.Infrastructure;
+using citr.Models;
+using citr.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using citr.Models;
-using citr.Infrastructure;
-using citr.Models.ViewModels;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using citr.Services;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace citr.Controllers
 {
@@ -24,7 +20,7 @@ namespace citr.Controllers
         private readonly HistoryService historyService;
 
         public ResourceController(
-            IEmployeeRepository employeeRepo, 
+            IEmployeeRepository employeeRepo,
             IResourceRepository repo,
             IRequestRepository requestRepo,
             ApplicationDbContext ctx,
@@ -48,7 +44,7 @@ namespace citr.Controllers
         [Authorize(Roles = "Admins")]
         public ViewResult Edit(int resourceId)
         {
-            Resource res = repository.Resources.FirstOrDefault(p => p.ResourceID == resourceId);           
+            Resource res = repository.Resources.FirstOrDefault(p => p.ResourceID == resourceId);
             ViewBag.Json = categoryTree.GetCategoriesJson(res.CategoryID);
             return View(res);
         }
@@ -57,7 +53,7 @@ namespace citr.Controllers
         [HttpPost]
         public IActionResult Edit(Resource model)
         {
-            var roles = model.Roles?.Where(c => !c.IsDeleted).ToList();
+            List<AccessRole> roles = model.Roles?.Where(c => !c.IsDeleted).ToList();
             if (ModelState.IsValid)
             {
                 bool isNew = model.ResourceID == 0;
@@ -72,7 +68,9 @@ namespace citr.Controllers
 
                 string mess = $"Ресурс <b>{res.Name}</b> был сохранён";
                 if (isNew)
+                {
                     mess = $"Ресурс <b>{res.Name}</b> был создан";
+                }
 
                 historyService.AddRow(res, mess);
                 TempData["message"] = mess;
@@ -94,7 +92,7 @@ namespace citr.Controllers
 
         [Authorize(Roles = "Admins")]
         public ViewResult Copy(int sourceId)
-        {            
+        {
             Resource res = repository.Resources.FirstOrDefault(p => p.ResourceID == sourceId);
             Resource newRes = new Resource()
             {
@@ -105,7 +103,7 @@ namespace citr.Controllers
                 OwnerEmployee = res.OwnerEmployee,
                 Roles = new List<AccessRole>(res.Roles.Select(r => new AccessRole() { Name = r.Name }))
             };
-            ViewBag.Json = categoryTree.GetCategoriesJson(res.CategoryID);         
+            ViewBag.Json = categoryTree.GetCategoriesJson(res.CategoryID);
             return View("Edit", newRes);
         }
 
@@ -120,7 +118,7 @@ namespace citr.Controllers
             }
             catch (DbUpdateException ex)
             {
-                var innerException = ex.InnerException.InnerException as MySql.Data.MySqlClient.MySqlException;
+                MySql.Data.MySqlClient.MySqlException innerException = ex.InnerException.InnerException as MySql.Data.MySqlClient.MySqlException;
                 if (innerException != null && innerException.Number == 1451)
                 {
                     TempData["Error"] = $"Не удалось удалить ресурс <b>{resourceToDel.Name}</b>: на него есть ссылки в других объектах";
@@ -142,8 +140,8 @@ namespace citr.Controllers
         [Authorize(Roles = "Admins")]
         [HttpPost]
         public ActionResult AddRole(int index, string roleName)
-        {          
-            var newObj = new AccessRole()
+        {
+            AccessRole newObj = new AccessRole()
             {
                 Name = roleName
             };
@@ -155,8 +153,8 @@ namespace citr.Controllers
         [HttpGet]
         public ActionResult CheckRoleReferences(int roleId)
         {
-            var reqs = requestRepository.Requests.Where(r => r.Details.Any(d => d.RoleID == roleId));
-            
+            IQueryable<Request> reqs = requestRepository.Requests.Where(r => r.Details.Any(d => d.RoleID == roleId));
+
             if (reqs.Count() > 0)
             {
                 return Json(reqs.Select(r => r.RequestID));
@@ -170,10 +168,13 @@ namespace citr.Controllers
         public ActionResult GetResourcesJson(string search)
         {
             if (search == null)
+            {
                 search = "";
+            }
+
             JsonResult res = Json(new EmptyResult());
             List<object> results = new List<object>();
-            foreach (var g in repository.Resources.OrderBy(r => r.Name).Where(r => r.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).GroupBy(r => r.Category))
+            foreach (IGrouping<ResourceCategory, Resource> g in repository.Resources.OrderBy(r => r.Name).Where(r => r.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).GroupBy(r => r.Category))
             {
                 results.Add(new { text = g.Key.Name, children = g.ToList().Select(r => new { id = r.ResourceID, text = r.Name }) });
             }
@@ -184,7 +185,7 @@ namespace citr.Controllers
         [HttpGet]
         public ActionResult GetResourcesByCategoryJson(int categoryId)
         {
-            var results = repository.Resources.Where(r => r.Category.ID == categoryId).OrderBy(r => r.Name).Select(r => new { id = r.ResourceID, text = r.Name });           
+            var results = repository.Resources.Where(r => r.Category.ID == categoryId).OrderBy(r => r.Name).Select(r => new { id = r.ResourceID, text = r.Name });
             return Json(results);
         }
     }

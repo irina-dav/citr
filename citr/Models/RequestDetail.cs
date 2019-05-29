@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace citr.Models
+﻿namespace citr.Models
 {
     public class RequestDetail
     {
@@ -23,7 +17,7 @@ namespace citr.Models
         public virtual Employee EmployeeAccess { get; set; }
 
         public ResourceApprovingResult ApprovingResult { get; set; }
-       
+
         public long? TicketID { get; set; }
         public virtual Ticket Ticket { get; set; }
     }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace citr.Models
 {
@@ -27,10 +23,5 @@ namespace citr.Models
         public DbSet<UserRole> UserRole { get; set; }
 
         public DbSet<Ticket> Tickets { get; set; }
-
-        //public DbSet<EmployeeAccess> EmployeeAccess { get; set; }
-
-        //public DbSet<ResourceAccess> ResourceAccess { get; set; }
-
     }
 }

@@ -1,9 +1,7 @@
-﻿using System;
+﻿using citr.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using citr.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace citr.Repositories
 {
@@ -16,7 +14,7 @@ namespace citr.Repositories
             context = ctx;
         }
 
-        public IEnumerable<Employee> Employees => 
+        public IEnumerable<Employee> Employees =>
             context.Employees.Include(e => e.UserRole);
 
         public Employee DeleteEmployee(int employeeId)
@@ -45,10 +43,10 @@ namespace citr.Repositories
             {
                 Employee dbEntry = context.Employees.FirstOrDefault(r => r.Account == employee.Account);
                 if (dbEntry != null)
-                {                   
+                {
                     dbEntry.Email = employee.Email;
                     dbEntry.FullName = employee.FullName;
-                    dbEntry.Position = employee.Position;                  
+                    dbEntry.Position = employee.Position;
                 }
             }
             context.SaveChanges();

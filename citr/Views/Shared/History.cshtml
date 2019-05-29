@@ -3,20 +3,20 @@
     <h5>История событий</h5>
     @if (Model != null && Model.Count() > 0)
     {
-    <table class="table  table-bordered table-sm">
-        <tr><th>Дата</th><th>Автор</th><th>Событие</th></tr>
-        @foreach (HistoryRow row in Model)
-        {
-        <tr>
-            <td>@row.Date</td>
-            <td>@row.AuthorEmployee.FullName</td>
-            <td>@row.Text</td>
-        </tr>
-         }
-    </table>
-     }
-     else
-     {
+        <table class="table  table-bordered table-sm">
+            <tr><th>Дата</th><th>Автор</th><th>Событие</th></tr>
+            @foreach (HistoryRow row in Model)
+            {
+                <tr>
+                    <td>@row.Date</td>
+                    <td>@row.AuthorEmployee.FullName</td>
+                    <td>@row.Text</td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
         <div class="text-left">Список событий пока что пуст</div>
-     }
+    }
 </div>

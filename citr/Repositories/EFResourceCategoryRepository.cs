@@ -1,9 +1,7 @@
-﻿using System;
+﻿using citr.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using citr.Repositories;
 
 namespace citr.Models
 {
@@ -23,7 +21,7 @@ namespace citr.Models
         {
             if (category.ID == 0)
             {
-               context.ResourceCategories.Add(category);
+                context.ResourceCategories.Add(category);
             }
             else
             {
@@ -37,7 +35,7 @@ namespace citr.Models
             ResourceCategory dbEntry = context.ResourceCategories.FirstOrDefault(r => r.ID == categoryId);
             if (dbEntry != null)
             {
-               context.ResourceCategories.Remove(dbEntry);
+                context.ResourceCategories.Remove(dbEntry);
                 context.SaveChanges();
             }
             return dbEntry;

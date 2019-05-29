@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace citr.Models
 {
@@ -10,7 +9,7 @@ namespace citr.Models
 
         public int EmployeeID { get; set; }
 
-        public AccessLevel AccessLevel { get; set; }        
+        public AccessLevel AccessLevel { get; set; }
 
         public virtual Employee Employee { get; set; }
 

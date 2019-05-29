@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace citr.Models
 {
     public interface IViewTableRow
     {
-       bool IsDeleted { get; set; }
+        bool IsDeleted { get; set; }
     }
 
     public class ResourceAccess : IViewTableRow

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.IO;
@@ -15,17 +14,17 @@ namespace citr.Infrastructure
             string controllerName,
             object routeValues = null
         )
-                {
-                    var httpContext = controller.HttpContext;
-                    string scheme = httpContext.Request.Scheme;
+        {
+            Microsoft.AspNetCore.Http.HttpContext httpContext = controller.HttpContext;
+            string scheme = httpContext.Request.Scheme;
 
-                    return controller.Url.Action(
-                        actionName,
-                        controllerName,
-                        routeValues,
-                        scheme
-                    );
-                }
+            return controller.Url.Action(
+                actionName,
+                controllerName,
+                routeValues,
+                scheme
+            );
+        }
 
         public static string BaseUrl(this Controller controller)
         {
@@ -41,11 +40,10 @@ namespace citr.Infrastructure
 
             controller.ViewData.Model = model;
 
-            using (var writer = new StringWriter())
+            using (StringWriter writer = new StringWriter())
             {
                 IViewEngine viewEngine = controller.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) as ICompositeViewEngine;
                 ViewEngineResult viewResult = viewEngine.FindView(controller.ControllerContext, viewName, !partial);
-                //ViewEngineResult viewResult = viewEngine.GetView(controller.ControllerContext, viewName, !partial);
 
                 if (viewResult.Success == false)
                 {

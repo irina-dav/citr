@@ -1,11 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using citr.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using citr.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace citr.Infrastructure
 {
@@ -57,47 +55,58 @@ namespace citr.Infrastructure
     }
 
     public class TreeViewNodeState
-        {
-            public bool selected;
-        }
+    {
+        public bool selected;
+    }
 
-        public class TreeViewNode
-        {
-            public int id { get; set; }
-            [JsonIgnore]
-            public int parent { get; set; }
-            public string text { get; set; }
-            public TreeViewNodeState state { get; set; }
-            public List<TreeViewNode> children { get; set; }
-        }
+    public class TreeViewNode
+    {
+        public int id { get; set; }
+        [JsonIgnore]
+        public int parent { get; set; }
+        public string text { get; set; }
+        public TreeViewNodeState state { get; set; }
+        public List<TreeViewNode> children { get; set; }
+    }
 
-        public static class TreeNodeExtensions
+    public static class TreeNodeExtensions
+    {
+        public static TreeViewNode ToTree(this List<TreeViewNode> list)
         {
-            public static TreeViewNode ToTree(this List<TreeViewNode> list)
+            if (list == null)
             {
-                if (list == null) throw new ArgumentNullException("list");
-                var root = list.SingleOrDefault(x => x.parent == -1);
-                if (root == null) throw new InvalidOperationException("root == null");
-
-                PopulateChildren(root, list);
-
-                return root;
+                throw new ArgumentNullException("list");
             }
 
-            private static void PopulateChildren(TreeViewNode node, List<TreeViewNode> all)
+            TreeViewNode root = list.SingleOrDefault(x => x.parent == -1);
+            if (root == null)
             {
-                var childs = all.Where(x => x.parent.Equals(node.id)).ToList();
+                throw new InvalidOperationException("root == null");
+            }
 
-                foreach (var item in childs)
-                {
-                    node.children.Add(item);
-                }
+            PopulateChildren(root, list);
 
-                foreach (var item in childs)
-                    all.Remove(item);
+            return root;
+        }
 
-                foreach (var item in childs)
-                    PopulateChildren(item, all);
+        private static void PopulateChildren(TreeViewNode node, List<TreeViewNode> all)
+        {
+            List<TreeViewNode> childs = all.Where(x => x.parent.Equals(node.id)).ToList();
+
+            foreach (TreeViewNode item in childs)
+            {
+                node.children.Add(item);
+            }
+
+            foreach (TreeViewNode item in childs)
+            {
+                all.Remove(item);
+            }
+
+            foreach (TreeViewNode item in childs)
+            {
+                PopulateChildren(item, all);
             }
         }
+    }
 }

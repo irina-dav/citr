@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace citr.Models.ViewModels
+﻿namespace citr.Models.ViewModels
 {
     public class RequestDetailViewModel : IViewTableRow
     {
@@ -40,19 +35,25 @@ namespace citr.Models.ViewModels
                 if (TicketID != null)
                 {
                     if (Ticket.EndDate.HasValue)
+                    {
                         return $"выполнена {Ticket.EndDate.Value.ToString("dd.MM.yy")}";
+                    }
                     else
+                    {
                         return "выполняется";
+                    }
                 }
                 else
+                {
                     return "";
+                }
             }
-        }    
-
-        public RequestDetailViewModel()
-        {
-
         }
+
+        public string TicketUrl { get; set; }
+
+
+        public RequestDetailViewModel() { }
 
         public RequestDetailViewModel(RequestDetail detail)
         {

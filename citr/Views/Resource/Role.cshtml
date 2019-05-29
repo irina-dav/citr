@@ -4,10 +4,10 @@
         <input asp-for="Name" readonly class="form-control form-control-sm rounded-0 role-name" />
     </td>
     <td class="align-middle text-left" width="25%">
-        <div class="btn-group btn-group-sm" width="140px">          
-                <a class="btn btn-link btn-outline-warning btn-sm rounded-0 btn-role-action  edit-role ">Изменить <span class="fa fa-edit"></span></a>                       
-                @Html.HiddenFor(m => Model.IsDeleted)
-                <a class="btn btn-link btn-outline-danger btn-sm rounded-0 btn-role-action  delete-role ml-1 ">Удалить <span class="fa fa-trash-o"></span></a>           
+        <div class="btn-group btn-group-sm" width="140px">
+            <a class="btn btn-link btn-outline-warning btn-sm rounded-0 btn-role-action  edit-role ">Изменить <span class="fa fa-edit"></span></a>
+            @Html.HiddenFor(m => Model.IsDeleted)
+            <a class="btn btn-link btn-outline-danger btn-sm rounded-0 btn-role-action  delete-role ml-1 ">Удалить <span class="fa fa-trash-o"></span></a>
         </div>
     </td>
     @Html.HiddenFor(m => Model.ID, new { @class = "role-id" })
